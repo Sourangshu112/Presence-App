@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Presence-App",
-    "slug": "Presence-App",
+    "name": "Presence",
+    "slug": "Presence-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,9 +13,16 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "$(PRODUCT_NAME) needs camera access to detect faces."
+      }
     },
     "android": {
+      "package": "com.sourangshu616.PresenceApp",
+      "permissions": [
+        "android.permission.CAMERA"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -24,6 +31,29 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "$(PRODUCT_NAME) needs camera access to detect faces.",
+          "enableFrameProcessors": true,
+          "androidCamera2Api": true
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 26
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "031b41ce-c964-4ac8-9bc2-097cc8169ff9"
+      }
     }
   }
 }
