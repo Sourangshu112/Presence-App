@@ -31,7 +31,7 @@ export default function CameraScreen() {
   const { hasPermission, isLoading } = useCameraPermission();
   const device = useCameraDevice('front');
   const format = useCameraFormat(device, [
-    { fps: 30,
+    { fps: 10,
       videoResolution: '720p'  
     }
   ])
@@ -40,7 +40,7 @@ export default function CameraScreen() {
 
   const faceDetectionOptions = useRef({
     performanceMode: 'fast',
-    landmarkMode: 'none',
+    landmarkMode: 'all',
     // 'all' is required so we get eyeOpenProbability for liveness check
     classificationMode: 'all',
     minFaceSize: 0.55,

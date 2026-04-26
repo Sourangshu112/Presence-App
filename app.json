@@ -21,7 +21,10 @@
     "android": {
       "package": "com.sourangshu616.PresenceApp",
       "permissions": [
-        "android.permission.CAMERA"
+        "android.permission.CAMERA",
+        "BLUETOOTH",
+        "BLUETOOTH_ADVERTISE",
+        "BLUETOOTH_CONNECT"
       ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -48,7 +51,27 @@
             "minSdkVersion": 26
           }
         }
-      ]
+      ],
+      [
+        "react-native-ble-plx",
+        {
+          "isBackgroundEnabled": false,
+          "modes": [
+            "peripheral",
+            "central"
+          ],
+          "bluetoothAlwaysPermission": "Presence uses Bluetooth to verify you are inside the classroom."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Location is required by Android to scan for the classroom Bluetooth beacon."
+        }
+      ],
+      "@react-native-google-signin/google-signin",
+      "expo-secure-store",
+      "expo-router"
     ],
     "extra": {
       "eas": {
