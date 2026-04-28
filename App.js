@@ -1,9 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import CameraScreen from './components/CameraScreen';
-import LoginScreen from './screens/Login';
-import DetailScreen from './screens/Details';
+import CameraScreen from './src/components/CameraScreen';
+import LoginScreen from './src/screens/Shared/Login';
+import DetailScreen from './src/screens/Shared/Details';
+import AddFaceDataScreen from './src/screens/Students/AddFaceData';
 
 export default function App() {
   return (
@@ -11,8 +12,9 @@ export default function App() {
     <View style={styles.container}>
       <StatusBar style="auto" />
       {/* <CameraScreen /> */}
-      <LoginScreen />
+      {/* <LoginScreen /> */}
       {/* <DetailScreen /> */}
+      {/* <AddFaceDataScreen /> */}
     </View>
     </SafeAreaProvider>
   );
