@@ -1,8 +1,7 @@
 // VerificationPage.js
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
-// import CameraScreen from '../../components/CameraScreen';
-import CameraScreen from '@components/CameraScreen';
+// import CameraScreen from '@components/CameraScreen';
 
 export default function AddFaceDataScreen() {
   const [isProcessing, setIsProcessing] = useState(false);
