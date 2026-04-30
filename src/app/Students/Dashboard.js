@@ -1,7 +1,6 @@
-// src/screens/student/StudentDashboard.js
 import React from 'react';
 import { Alert } from 'react-native';
-import ClassroomDashboard from '../../components/ClassroomDashboard';
+import ClassroomDashboard from '@/components/ClassroomDashboard';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function StudentDashboard({ navigation }) {

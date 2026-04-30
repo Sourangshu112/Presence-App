@@ -1,7 +1,7 @@
 // src/screens/teacher/TeacherDashboard.js
 import React from 'react';
 import { Alert } from 'react-native';
-import ClassroomDashboard from '../../components/ClassroomDashboard';
+import ClassroomDashboard from '@/components/ClassroomDashboard';
 
 export default function TeacherDashboard({ navigation }) {
   // Notice the data is slightly different here (studentCount instead of teacherName)
