@@ -1,7 +1,7 @@
 // src/app/(student)/(classtabs)/People.js
 import React from 'react';
 import { View, Text, StyleSheet, SectionList } from 'react-native';
-import PersonRow from '@/components/PersonRow';
+import PersonRow from '@/components/ui/PersonRow';
 
 const PEOPLE_DATA = [
   {

@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, SectionList, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import PersonRow from '@/components/PersonRow';
+import PersonRow from '@/components/ui/PersonRow';
 
 const PEOPLE_DATA = [
   {

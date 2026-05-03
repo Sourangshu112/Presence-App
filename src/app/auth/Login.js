@@ -1,9 +1,35 @@
-import React from 'react';
-import { View, Text, StyleSheet} from 'react-native';
+import React,{useState,useEffect,useContext} from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, Button} from 'react-native';
 import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { AuthContext } from '@/context/AuthContext';
 
-export default function LoginScreen({ onGoogleLogin }) {
+
+export default function LoginScreen() {
+  const router = useRouter();
+  const { loginWithGoogle, isLoading, backendData } = useContext(AuthContext);
+
+  if (isLoading) {
+    return <ActivityIndicator size="large" />;
+  }
+
+  const handleLoginPress = async () => {
+  try{    
+    const Data = await loginWithGoogle(); 
+
+    if (backendData && backendData.user) {
+      const userRole = backendData.user.role;
+      if (userRole === 'STUDENT') router.replace('/Students/Dashboard');
+      else if (userRole === 'TEACHER') router.replace('/Teachers/Dashboard');
+      else router.replace('/Shared/Details');
+    }
+    else console.log("failed");
+  } catch {
+    console.log("Failed ", error)
+  }
+  };
+
   return (
     <View style={styles.safeArea}>
       <View style={styles.container}>
@@ -24,7 +50,13 @@ export default function LoginScreen({ onGoogleLogin }) {
               style={styles.loginButton}
               size={GoogleSigninButton.Size.Wide}
               color={GoogleSigninButton.Color.Light} 
-              onPress={onGoogleLogin}
+              onPress={handleLoginPress}
+            />
+            {/* Temporary button to view the site map... must be removed in production */}
+            <Button 
+              title="Open Sitemap (Debug)" 
+              color="purple"
+              onPress={() => router.push('/_sitemap')} 
             />
           </View>
         </View>

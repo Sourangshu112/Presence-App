@@ -1,42 +1,98 @@
-// src/context/AuthContext.js
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import { GoogleSignin, isSuccessResponse, isErrorWithCode, statusCodes } from '@react-native-google-signin/google-signin';
+import { Alert } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 
 // 1. Create the Context
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
-// 2. Create the Provider Component
 export const AuthProvider = ({ children }) => {
-  // Temporary mock state. 
-  // Set this to 'student', 'teacher', or null to test different default states.
-  const [userRole, setUserRole] = useState(null); 
-  //   const role = 'student';
-  // A temporary function to simulate logging in
-  // Later, this function will take a username/password, hit your backend, 
-  // get the DB user role, and then call setUserRole(dbRole).
-  const mockLogin = (role) => {
-    setUserRole(role);
+  const [backendData, setBackendData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true); 
+  const [tokenData, setTokenData] = useState({});
+  const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_WEB_CLIENT_ID;
+
+  // 2. Configure Google Sign-In exactly once when the app loads
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: WEB_CLIENT_ID, 
+      offlineAccess: true, 
+    });
+    setIsLoading(false);
+  }, []);
+
+  // 3. The Login Function
+  const loginWithGoogle = async () => {
+    try {
+      setIsLoading(true);
+      await GoogleSignin.hasPlayServices();
+      const responseOfGoogle = await GoogleSignin.signIn();
+      const tokens = await GoogleSignin.getTokens();
+
+      if (isSuccessResponse(responseOfGoogle)){
+        const {idToken, user} = responseOfGoogle.data;
+        const {name, email} = user;
+        const accessToken = tokens.accessToken;
+
+        // 1. Set the state for your UI to use later
+        setTokenData({ idToken, name, email });
+
+        const response = await fetch('http://10.195.176.11:8000/auth/google/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            access_token: accessToken,
+            id_token: idToken 
+          }), 
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setBackendData(data)
+          console.log(data);
+          await SecureStore.setItemAsync('access_token', data.access);
+          await SecureStore.setItemAsync('refresh_token', data.refresh);
+          return backendData;
+        } else {
+          console.error("Backend validation failed:", data);
+        }
+      } else {
+        // If not successful, handle the cancellation/failure
+        Alert.alert("Signin was cancelled");
+        console.log("Signin was cancelled");
+      }
+
+    } catch (error) {
+      if(isErrorWithCode(error)){
+        console.log("Google Sign-In specific error:", error);
+      } else {
+        console.log("Error in backend:", error);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const mockLogout = () => {
-    setUserRole(null);
-  };
-
-  // The value object contains everything you want to access from other screens
-  const value = {
-    userRole,
-    mockLogin,
-    mockLogout
+  // 4. The Logout Function
+  const logout = async () => {
+    try {
+      await GoogleSignin.signOut();
+      setBackendData(null);
+      setTokenData({}); // Clear the token data on logout too
+      // Remove token from AsyncStorage here
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ loginWithGoogle, logout, backendData, isLoading, tokenData }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// 3. Create a Custom Hook (Best Practice)
-// This saves you from having to import useContext AND AuthContext on every screen.
 export const useAuth = () => {
   return useContext(AuthContext);
 };

@@ -1,16 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, Pressable, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons'; // Assuming Expo, otherwise install '@expo/vector-icons' or 'react-native-vector-icons'
+import { Ionicons } from '@expo/vector-icons';
+import { AuthContext } from '@/context/AuthContext';
+
 
 export default function DetailScreen() {
   const options = [
     { id: '1', label: 'Teacher' },
     { id: '2', label: 'Student' },
   ];
+  const {backendData, tokenData} = useContext(AuthContext);
   const [selectedId, setSelectedId] = useState('1');
   const [name, setName] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+
+  useEffect(() => {
+  if (tokenData.name)
+    setName(tokenData.name)
+  },[])
 
   const brandColor = '#1976D2'; // Define centrally
 

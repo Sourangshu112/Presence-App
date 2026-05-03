@@ -1,44 +1,62 @@
-// src/app/index.js
-import { View, Button, Text } from 'react-native';
+import { useEffect } from 'react';
+import { View, ActivityIndicator } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../context/AuthContext'; // <-- Import your custom hook
 
-export default function TemporaryLogin() {
+export default function Index() {
   const router = useRouter();
-  const { userRole, mockLogin } = useAuth(); // <-- Grab the state and function
 
-  const handleSimulatedLogin = (role) => {
-    // 1. Set the role globally in Context
-    mockLogin(role);
-    
-    // 2. Route the user based on the role
-    if (role === 'student') {
-      router.replace('/Students/Dashboard');
-    } else if (role === 'teacher') {
-      router.replace('/Teachers/Dashboard');
-    }
-  };
+  useEffect(() => {
+    // 1. Wrap the async logic in a function inside useEffect
+    const checkExistingSession = async () => {
+      try {
+        const token = await SecureStore.getItemAsync('access_token');
+        
+        // 2. Use router.replace() instead of returning <Redirect />
+        if (!token) {
+          router.replace('/auth/Login');
+          return; // Stop execution here
+        }
+
+        const response = await fetch('http://10.195.176.11:8000/auth/verify_session/', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        // 3. Handle expired tokens (401 Unauthorized)
+        if (!response.ok) {
+            router.replace('/auth/Login');
+            return;
+        }
+
+        const data = await response.json();
+        
+        // 4. Route based on role
+        if (data && data.user) {
+          const userRole = data.user.role;
+
+          if (userRole === 'STUDENT') router.replace('/Students/Dashboard');
+          else if (userRole === 'TEACHER') router.replace('/Teachers/Dashboard');
+          else router.replace('/Shared/Details');
+        } else {
+          router.replace('/auth/Login');
+        }
+
+      } catch (error) {
+        console.log("Network or Storage Error: ", error);
+        router.replace('/auth/Login');
+      }
+    };
+
+    checkExistingSession();
+  }, []); 
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', padding: 20, gap: 20 }}>
-      <Text style={{ textAlign: 'center', fontSize: 20, fontWeight: 'bold' }}>
-        Current Global Role: {userRole || 'Not Logged In'}
-      </Text>
-
-      <Button 
-        title="Login as Student" 
-        onPress={() => handleSimulatedLogin('student')} 
-      />
-      
-      <Button 
-        title="Login as Teacher" 
-        onPress={() => handleSimulatedLogin('teacher')} 
-      />
-        <Button 
-          title="🐛 Open Sitemap (Debug)" 
-          color="purple"
-          onPress={() => router.push('/_sitemap')} 
-        />
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1976D2' }}>
+      <ActivityIndicator size="large" color="#ffffff" />
     </View>
   );
 }
