@@ -4,29 +4,36 @@ import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { AuthContext } from '@/context/AuthContext';
+import LoadingScreen from '@/components/LoadingScreen';
+import ErrorText from '@/components/ui/ErrorText';
 
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { loginWithGoogle, isLoading, backendData } = useContext(AuthContext);
+  const { loginWithGoogle, isLoading, backendData, errorHappened, setErrorHappened} = useContext(AuthContext);
+  
 
   if (isLoading) {
-    return <ActivityIndicator size="large" />;
+    return <LoadingScreen />;
   }
 
   const handleLoginPress = async () => {
   try{    
     const Data = await loginWithGoogle(); 
 
-    if (backendData && backendData.user) {
-      const userRole = backendData.user.role;
+    if (Data && Data.user) {
+      const userRole = Data.user.role;
       if (userRole === 'STUDENT') router.replace('/Students/Dashboard');
       else if (userRole === 'TEACHER') router.replace('/Teachers/Dashboard');
       else router.replace('/Shared/Details');
     }
-    else console.log("failed");
+    else {
+      console.log("failed",Data);
+      setErrorHappened(true);
+    }
   } catch {
     console.log("Failed ", error)
+    setErrorHappened(true);
   }
   };
 
@@ -46,6 +53,7 @@ export default function LoginScreen() {
           <Text style={styles.instructionText}>Sign in to access your account</Text>
           
           <View style={styles.buttonWrapper}>
+            {errorHappened ? <ErrorText textReceived={"Something Unexpected Happened Please Try Again"} /> : <></>}
             <GoogleSigninButton 
               style={styles.loginButton}
               size={GoogleSigninButton.Size.Wide}

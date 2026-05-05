@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
+import LoadingScreen from '@/components/LoadingScreen';
 
 export default function Index() {
   const router = useRouter();
@@ -56,7 +57,7 @@ export default function Index() {
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1976D2' }}>
-      <ActivityIndicator size="large" color="#ffffff" />
+      <LoadingScreen />
     </View>
   );
 }

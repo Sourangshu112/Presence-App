@@ -10,6 +10,9 @@ export const AuthProvider = ({ children }) => {
   const [backendData, setBackendData] = useState(null);
   const [isLoading, setIsLoading] = useState(true); 
   const [tokenData, setTokenData] = useState({});
+  const [errorHappened, setErrorHappened] = useState(false);
+
+
   const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_WEB_CLIENT_ID;
 
   // 2. Configure Google Sign-In exactly once when the app loads
@@ -50,12 +53,14 @@ export const AuthProvider = ({ children }) => {
 
         if (response.ok) {
           setBackendData(data)
-          console.log(data);
           await SecureStore.setItemAsync('access_token', data.access);
           await SecureStore.setItemAsync('refresh_token', data.refresh);
+          setErrorHappened(false);
           return backendData;
         } else {
+          setErrorHappened(true);
           console.error("Backend validation failed:", data);
+          return null;
         }
       } else {
         // If not successful, handle the cancellation/failure
@@ -65,9 +70,13 @@ export const AuthProvider = ({ children }) => {
 
     } catch (error) {
       if(isErrorWithCode(error)){
+        setErrorHappened(true);
         console.log("Google Sign-In specific error:", error);
+        return null;
       } else {
+        setErrorHappened(true);
         console.log("Error in backend:", error);
+        return null;
       }
     } finally {
       setIsLoading(false);
@@ -87,7 +96,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ loginWithGoogle, logout, backendData, isLoading, tokenData }}>
+    <AuthContext.Provider value={{ loginWithGoogle, logout, backendData, isLoading, tokenData, errorHappened, setErrorHappened }}>
       {children}
     </AuthContext.Provider>
   );

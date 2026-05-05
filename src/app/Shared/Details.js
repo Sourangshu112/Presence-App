@@ -1,26 +1,76 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, Pressable, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Alert, StyleSheet, Pressable, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '@/context/AuthContext';
+import ErrorText from '../../components/ui/ErrorText';
+import { useRouter } from 'expo-router';
 
 
 export default function DetailScreen() {
   const options = [
-    { id: '1', label: 'Teacher' },
-    { id: '2', label: 'Student' },
+    { id: '1', label: 'TEACHER' },
+    { id: '2', label: 'STUDENT' },
   ];
+
   const {backendData, tokenData} = useContext(AuthContext);
-  const [selectedId, setSelectedId] = useState('1');
+  const [selectedRole, setSelectedRole] = useState('STUDENT');
   const [name, setName] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const [errorHappened, setErrorHappened] = useState(false);
+  
+  const router = useRouter();
+
 
   useEffect(() => {
   if (tokenData.name)
-    setName(tokenData.name)
+    setName(tokenData.name);
   },[])
 
-  const brandColor = '#1976D2'; // Define centrally
+  const brandColor = '#1976D2';
+
+  const handleContinue = () => {
+    if (!name){
+      setErrorHappened(true);
+      return;
+    }
+    if (name && selectedRole){
+      Alert.alert(
+        "Are you sure",
+        `Your name is ${name} and you are a ${selectedRole}. \nPlease make sure you cannot change this later`,
+        [
+          {
+            text: "Go Back",
+            onPress: () => {},
+            style: "cancel"
+          },
+          {
+            text: "Yes Continue",
+            onPress: handleRouting
+          }
+        ],
+        {cancelable: true}
+      );
+    };
+  };
+
+  const handleRouting = () => {
+    if (selectedRole === "TEACHER"){
+      router.push({
+        pathname: "./ProcessData",
+        params: { name, selectedRole, faceImage: null }
+      });
+    }
+    else if (selectedRole === "STUDENT"){
+      router.push({
+        pathname: "./AddFaceData",
+        params: { name, selectedRole, faceImage: null }
+      });
+    }
+    else {
+      setErrorHappened(true);
+    }
+  }
 
   return (
       <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -33,6 +83,7 @@ export default function DetailScreen() {
               
               {/* Header Section */}
               <View style={styles.headerSection}>
+                {(errorHappened && name) ? <ErrorText textReceived={"Something Went Wrong Please click continuw again"}/>:<></> }
                 <Text style={styles.heading}>Enter Some Details</Text>
                 <Text style={styles.subHeading}>We need a few items to get started.</Text>
               </View>
@@ -43,12 +94,12 @@ export default function DetailScreen() {
                 
                 <View style={styles.optionsList}>
                   {options.map((item) => {
-                    const isSelected = item.id === selectedId;
+                    const isSelected = item.label === selectedRole;
 
                     return (
                       <Pressable
                         key={item.id}
-                        onPress={() => setSelectedId(item.id)}
+                        onPress={() => setSelectedRole(item.label)}
                         style={[
                           styles.rectOption,
                           isSelected && styles.rectOptionSelected // Dynamic selection border/bg
@@ -73,6 +124,7 @@ export default function DetailScreen() {
               {/* Text Input Section */}
               <View style={styles.sectionContainer}>
                 <Text style={styles.labelTitle}>Enter Full Name</Text>
+                {(errorHappened && !name) ? <ErrorText textReceived={"Please Enter your name"}/>:<></> }
                 <TextInput
                   style={[
                     styles.input,
@@ -81,19 +133,23 @@ export default function DetailScreen() {
                   placeholder="e.g., Amit Das"
                   placeholderTextColor="#999"
                   value={name}
-                  onChangeText={setName}
+                  onChangeText={(text) => {
+                    setName(text);
+                    setErrorHappened(false);
+                  }}
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
-                  autoCorrect={false} // Often helpful for names
+                  autoCorrect={false}
+                  
                 />
                     <View style={styles.cautionContainer}>
-                        <Text style={styles.cautionText}>Caution: This is the name others will see and cannot be changed later. Be Carefull</Text>
+                        <ErrorText textReceived={"Caution: This is the name others will see and cannot be changed later. Be Carefull"} />
                     </View>
               </View>
 
               {/* Optional Submit Button for Context */}
               <View style={styles.submitSection}>
-                <TouchableOpacity style={styles.submitButton}>
+                <TouchableOpacity style={styles.submitButton} onPress={handleContinue}>
                   <Text style={styles.submitText}>Continue</Text>
                 </TouchableOpacity>
               </View>

@@ -5,6 +5,20 @@ import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 // import { AuthProvider } from '../context/AuthContext'; 
 import { AuthProvider } from '../context/AuthContext';
 
+
+// Add this at the very top of your App.js file
+const originalWarn = console.error;
+
+console.error = (...args) => {
+  if (
+    typeof args[0] === 'string' && 
+    args[0].includes('A props object containing a "key" prop is being spread into JSX')
+  ) {
+    return; // Ignore this specific annoyance
+  }
+  originalWarn(...args);
+};
+
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
