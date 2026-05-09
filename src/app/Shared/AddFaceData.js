@@ -29,15 +29,5 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000',
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#000'
-  },
-  loadingText: {
-    color: '#fff',
-    marginTop: 20,
-    fontSize: 16,
-  }
+
 });

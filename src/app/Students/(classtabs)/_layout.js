@@ -2,10 +2,13 @@ import { Tabs } from 'expo-router';
 import { View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import RenderHeader from '@/components/ui/SubjectHeader';
+import { useLocalSearchParams } from 'expo-router';
 
 
 export default function TabLayout() {
   const color = "red";
+  const subjectDetails = useLocalSearchParams();
+  console.log(subjectDetails);
   const MOCK_SUBJECT = {
   id: '101',
   name: 'Control Systems',

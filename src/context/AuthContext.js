@@ -33,14 +33,12 @@ export const AuthProvider = ({ children }) => {
       const tokens = await GoogleSignin.getTokens();
 
       if (isSuccessResponse(responseOfGoogle)){
-        const {idToken, user} = responseOfGoogle.data;
-        const {name, email} = user;
+        const {idToken} = responseOfGoogle.data;
         const accessToken = tokens.accessToken;
 
         // 1. Set the state for your UI to use later
-        setTokenData({ idToken, name, email });
 
-        const response = await fetch('http://10.195.176.11:8000/auth/google/', {
+        const response = await fetch('http://10.215.120.11:8000/auth/google/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
@@ -56,7 +54,7 @@ export const AuthProvider = ({ children }) => {
           await SecureStore.setItemAsync('access_token', data.access);
           await SecureStore.setItemAsync('refresh_token', data.refresh);
           setErrorHappened(false);
-          return backendData;
+          return data;
         } else {
           setErrorHappened(true);
           console.error("Backend validation failed:", data);
@@ -87,16 +85,13 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await GoogleSignin.signOut();
-      setBackendData(null);
-      setTokenData({}); // Clear the token data on logout too
-      // Remove token from AsyncStorage here
     } catch (error) {
       console.error(error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ loginWithGoogle, logout, backendData, isLoading, tokenData, errorHappened, setErrorHappened }}>
+    <AuthContext.Provider value={{loginWithGoogle, logout, isLoading, errorHappened, setErrorHappened }}>
       {children}
     </AuthContext.Provider>
   );

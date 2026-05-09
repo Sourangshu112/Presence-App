@@ -4,6 +4,7 @@ import { Camera, useCameraDevice, useFrameProcessor, runAsync, useCameraFormat, 
 import { useFaceDetector } from 'react-native-vision-camera-face-detector';
 import { Worklets } from 'react-native-worklets-core';
 import { useCameraPermission } from '../hooks/useCameraPermission';
+import { useIsFocused } from '@react-navigation/native';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -14,6 +15,7 @@ const CIRCLE_CENTER_X = SCREEN_WIDTH / 2;
 const CIRCLE_CENTER_Y = SCREEN_HEIGHT / 2;
 
 export default function CameraScreen({onVerify}) {
+  const isFocused = useIsFocused();
   const { hasPermission, isLoading } = useCameraPermission();
   const device = useCameraDevice('front');
   const format = useCameraFormat(device, [
@@ -204,17 +206,21 @@ export default function CameraScreen({onVerify}) {
   // --- Render Camera Active ---
   return (
     <View style={styles.container}>
-      <Camera
-        ref={cameraRef}
-        style={styles.camera}
-        device={device}
-        isActive={true}
-        frameProcessor={frameProcessor}
-        format={format}
-        pixelFormat="yuv"
-        enableZoomGesture={true}
-        photo={true}
-      />
+      <View>
+      {  isFocused && 
+      (<Camera
+          ref={cameraRef}
+          style={styles.camera}
+          device={device}
+          isActive={true}
+          frameProcessor={frameProcessor}
+          format={format}
+          pixelFormat="yuv"
+          enableZoomGesture={true}
+          photo={true}
+        />)
+        }
+        </View>
 
       <View
         style={[
@@ -275,6 +281,14 @@ const styles = StyleSheet.create({
     height: CIRCLE_SIZE,
     alignSelf: 'center',
     marginTop: CIRCLE_CENTER_Y - CIRCLE_RADIUS,
+    overflow: 'hidden',
+  },
+  cameraWrapper: {
+    position: 'absolute',
+    width: CIRCLE_SIZE,
+    height: CIRCLE_SIZE,
+    top: CIRCLE_CENTER_Y - CIRCLE_RADIUS,
+    left: CIRCLE_CENTER_X - CIRCLE_RADIUS,
     overflow: 'hidden',
   },
   circle: {

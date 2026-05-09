@@ -2,12 +2,12 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function ClassroomDashboard({role = 'student', userName = 'User', classes = [], onClassPress, onFabPress}) {
+export default function ClassroomDashboard({role = 'STUDENT', userName = 'User', classes = [], onClassPress, onFabPress}) {
   // Empty state rendering
   const renderEmptyList = () => (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyText}>
-        {role === 'teacher'
+        {role === 'TEACHER'
           ? "You haven't created any classes yet."
           : "You haven't joined any classes yet."}
       </Text>
@@ -21,25 +21,28 @@ export default function ClassroomDashboard({role = 'student', userName = 'User',
   const renderClassCard = ({ item }) => {
     return (
       <TouchableOpacity
-        style={[styles.card, { backgroundColor: item.themeColor || '#1a73e8' }]}
+        style={[styles.card, { backgroundColor: item.color_code || '#1a73e8' }]}
         activeOpacity={0.8}
         onPress={() => onClassPress(item)}
       >
         <View style={styles.cardHeader}>
           <Text style={styles.classTitle} numberOfLines={1}>
-            {item.title}
+            {item.classroom_name}
           </Text>
-          <Text style={styles.classSection} numberOfLines={1}>
-            {item.section}
-          </Text>
+          {
+            role === 'TEACHER' ? <Text style={styles.classSubtitle}>{item.join_code}</Text> : <></>
+          }
         </View>
 
-        <View style={styles.cardFooter}>
+        <View style={[styles.cardFooter, { justifyContent: role === 'TEACHER' ? 'space-between' : 'flex-end' }]}>
           <Text style={styles.footerText}>
-            {role === 'teacher'
-              ? `${item.studentCount || 0} Students`
-              : item.teacherName}
+            {role === 'TEACHER'
+              ? `${item.student_ccount || 0} Students`
+              : item.teacher_name}
           </Text>
+          {
+            role === 'TEACHER' ? <Text style={styles.footerText}>Created on: {item.created_at.slice(0, 10)}</Text> : <></>
+          }
         </View>
       </TouchableOpacity>
     );
@@ -49,7 +52,7 @@ export default function ClassroomDashboard({role = 'student', userName = 'User',
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.greeting}>Hello, {userName}</Text>
+        <Text style={styles.greeting}>Hello, {userName.split(' ')[0]}</Text>
         <Text style={styles.roleBadge}>
           {role.toUpperCase()}
         </Text>
@@ -130,13 +133,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 4,
   },
-  classSection: {
+  classSubtitle: {
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.8)',
   },
   cardFooter: {
     flexDirection: 'row',
-    justifyContent: 'flex-end', // Aligns text to the bottom right
   },
   footerText: {
     fontSize: 13,

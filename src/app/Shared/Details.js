@@ -3,7 +3,7 @@ import { View, Text, TextInput, Alert, StyleSheet, Pressable, KeyboardAvoidingVi
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '@/context/AuthContext';
-import ErrorText from '../../components/ui/ErrorText';
+import ErrorText from '@/components/ui/ErrorText';
 import { useRouter } from 'expo-router';
 
 
@@ -12,20 +12,12 @@ export default function DetailScreen() {
     { id: '1', label: 'TEACHER' },
     { id: '2', label: 'STUDENT' },
   ];
-
-  const {backendData, tokenData} = useContext(AuthContext);
   const [selectedRole, setSelectedRole] = useState('STUDENT');
   const [name, setName] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [errorHappened, setErrorHappened] = useState(false);
   
   const router = useRouter();
-
-
-  useEffect(() => {
-  if (tokenData.name)
-    setName(tokenData.name);
-  },[])
 
   const brandColor = '#1976D2';
 

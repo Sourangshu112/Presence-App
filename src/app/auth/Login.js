@@ -10,7 +10,7 @@ import ErrorText from '@/components/ui/ErrorText';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { loginWithGoogle, isLoading, backendData, errorHappened, setErrorHappened} = useContext(AuthContext);
+  const { loginWithGoogle, isLoading, errorHappened, setErrorHappened} = useContext(AuthContext);
   
 
   if (isLoading) {

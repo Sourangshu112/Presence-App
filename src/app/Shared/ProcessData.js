@@ -23,14 +23,14 @@ export default function Process() {
         let endpoint = '';
 
         if (selectedRole === "STUDENT") {
-          endpoint = 'http://10.195.176.11:8000/auth/add_student_data';
+          endpoint = 'http://10.215.120.11:8000/auth/add_student_data';
           formData.append('face_image', {
             uri: faceImage,
             type: 'image/jpeg',
             name: 'capture.jpg',
           });
         } else if (selectedRole === "TEACHER") {
-          endpoint = 'http://10.195.176.11:8000/auth/add_teacher_data';
+          endpoint = 'http://10.215.120.11:8000/auth/add_teacher_data';
         }
 
         const response = await fetch(endpoint, {

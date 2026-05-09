@@ -19,7 +19,7 @@ export default function Index() {
           return; // Stop execution here
         }
 
-        const response = await fetch('http://10.195.176.11:8000/auth/verify_session/', {
+        const response = await fetch('http://10.215.120.11:8000/auth/verify_session/', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
