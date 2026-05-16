@@ -1,63 +1,71 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { View, StyleSheet, FlatList, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import RenderAnnouncement from '@/components/ui/Announcement';
+import CreateAnnouncement from '@/components/ui/CreateAnnouncement';
+import { useApi } from '@/context/APIContext';
+import { DataContext } from './_layout';
+import * as SecureStore from 'expo-secure-store';
+import { useRouter } from 'expo-router';
+
+
 // import { useLocalSearchParams } from 'expo-router'; // You'll use this later to get subject details
 
 // --- MOCK DATA (To be replaced by Backend API later) ---
 
 
-const MOCK_ANNOUNCEMENTS = [
-  {
-    id: '1',
-    author: 'Dr. A. Sharma',
-    time: '10:00 AM, Oct 24',
-    content: 'Don\'t forget, the mid-term assignment is due this Friday. Please submit it via the portal.',
-  },
-  {
-    id: '2',
-    author: 'Dr. A. Sharma',
-    time: '2:30 PM, Oct 22',
-    content: 'I have uploaded the notes for Chapter 4. Please review them before tomorrow\'s lab session.',
-  },
-    {
-    id: '3',
-    author: 'Dr. A. Sharma',
-    time: '2:30 PM, Oct 22',
-    content: 'I have uploaded the notes for Chapter 4. Please review them before tomorrow\'s lab session.',
-  },
-    {
-    id: '4',
-    author: 'Dr. A. Sharma',
-    time: '2:30 PM, Oct 22',
-    content: 'I have uploaded the notes for Chapter 4. Please review them before tomorrow\'s lab session.',
-  },
-    {
-    id: '5',
-    author: 'Dr. A. Sharma',
-    time: '2:30 PM, Oct 22',
-    content: 'I have uploaded the notes for Chapter 4. Please review them before tomorrow\'s lab session.',
-  },
-    {
-    id: '6',
-    author: 'Dr. A. Sharma',
-    time: '2:30 PM, Oct 22',
-    content: 'I have uploaded the notes for Chapter 4. Please review them before tomorrow\'s lab session.',
-  },
-];
 
-export default function SubjectHome() {
-  const userRole = 'teacher';
-  
-  const [announcementText, setAnnouncementText] = useState('');
+export default function SubjectHome() { 
 
- 
+
+  const router = useRouter()
+  const {classroomDetails} = useContext(DataContext)
+  const {announcements,setAnnouncements} = useContext(DataContext);
+  const apiurl = useApi();
+
+  const addAnnouncement = async (announcement) => {
+    try{
+      const token = await SecureStore.getItemAsync('access_token');
+        
+        if (!token) {
+          router.replace('/auth/Login');
+          return;
+        }
+        console.log(announcement);
+      const responce = await fetch(`${apiurl}/classroom_data/${classroomDetails.id}/announcements/create/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body : JSON.stringify({content: announcement})
+        });
+        const data = await responce.json();
+        if (responce.ok){
+          if (data.message === "Announcement posted successfully"){
+            setAnnouncements(prevAnnouncements => [data.announcement,...prevAnnouncements]);
+          }
+        } else {
+          Alert.alert("Error", data.error || "Failed to Process");
+          if (announcementRes.status === 401) {
+            Alert.alert("Session Expired", "Please log in again.");
+            router.replace('/auth/Login')
+          };
+          if (response.status === 403) {
+            Alert.alert("Access Denied", data.error || "You do not have permission to view this.");
+          }
+        }
+    } catch (error){
+      console.log(error)
+    }
+  }
 
   // --- MAIN RENDER ---
   return (
     <View style={styles.container}>
+      <CreateAnnouncement onPostAnnouncement={addAnnouncement} />
       <FlatList
-        data={MOCK_ANNOUNCEMENTS}
+        data={announcements}
         keyExtractor={(item) => item.id}
         renderItem={RenderAnnouncement}
         contentContainerStyle={styles.listContent}

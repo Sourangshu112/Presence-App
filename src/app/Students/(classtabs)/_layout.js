@@ -1,11 +1,12 @@
 import { Tabs } from 'expo-router';
 import { Alert, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import RenderHeader from '@/components/ui/SubjectHeader';
 import { useLocalSearchParams } from 'expo-router';
 import { createContext, useEffect, useState } from 'react';
 import { useApi } from '@/context/APIContext';
 import * as SecureStore from 'expo-secure-store';
+import SubjectBanner from '@/components/ui/SubjectBanner';
+
 
 
 export const DataContext = createContext();
@@ -86,7 +87,7 @@ export default function TabLayout() {
   return (
     <View style={{flex: 1}}>
       <View>
-          <RenderHeader subject={classroomHeader} userRole={userRole} />
+          <SubjectBanner subject={classroomHeader} />
       </View>
       <Tabs>
           <Tabs.Screen name="Home" options={

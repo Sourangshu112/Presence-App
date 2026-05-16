@@ -1,16 +1,21 @@
 import { View,Text, StyleSheet } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
+import { announcementTime } from "@/utils/dateTime";
 
 
 const RenderAnnouncement = ({ item }) => (
     <View style={styles.announcementCard}>
       <View style={styles.announcementHeader}>
         <View style={styles.avatarPlaceholderSmall}>
-          <Text style={styles.avatarText}>{item.author.charAt(0)}</Text>
+          <Text style={styles.avatarText}>{item.author_name.charAt(0)}</Text>
         </View>
         <View>
-          <Text style={styles.authorName}>{item.author}</Text>
-          <Text style={styles.timeText}>{item.time}</Text>
+          <Text style={styles.authorName}>{item.author_name}</Text>
+          {
+          (item.created_at === item.updated_at) ? 
+            <Text style={styles.timeText}>{announcementTime(item.created_at)}</Text> : 
+            <Text style={styles.timeText}>Edited: {announcementTime(item.updated_at)}</Text>
+            }
         </View>
       </View>
       <Text style={styles.announcementContent}>{item.content}</Text>

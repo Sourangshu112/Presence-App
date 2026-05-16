@@ -1,17 +1,19 @@
 import { Tabs } from 'expo-router';
 import { Alert, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import RenderHeader from '@/components/ui/SubjectHeader';
 import { useLocalSearchParams } from 'expo-router';
 import { createContext, useEffect, useState } from 'react';
 import { useApi } from '@/context/APIContext';
 import * as SecureStore from 'expo-secure-store';
+import SubjectBanner from '@/components/ui/SubjectBanner';
+import { useRouter } from 'expo-router';
 
 
 export const DataContext = createContext();
 
 
 export default function TabLayout() {
+  const router = useRouter();
   const color = "black";
   const classroomDetails = useLocalSearchParams();
   
@@ -22,8 +24,8 @@ export default function TabLayout() {
   bannerColor: classroomDetails.color_code,
   createdAt: classroomDetails.created_at.slice(0,10)
 };
-  const userRole = 'teacher';
-  const [announcement, setAnnouncement] = useState(null);
+  const userRole = 'TEACHER';
+  const [announcements, setAnnouncements] = useState(null);
   const [loading, setLoading] = useState(true);
   const apiurl = useApi()
 
@@ -51,7 +53,7 @@ export default function TabLayout() {
                   fetch(),
                   fetch()
                 )*/
-        const announcementRes = await fetch(`${apiurl}/classroom_data/${classroomHeader.id}/announcements/`,{
+        const announcementRes = await fetch(`${apiurl}/classroom_data/${classroomDetails.id}/announcements/`,{
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -62,10 +64,17 @@ export default function TabLayout() {
         if (announcementRes.ok) {
           // 3. Save the data to state so React can render it
           console.log(data);
+          setAnnouncements(data.announcements)
         } else {
           // Handle specific backend errors (like inactive account)
-          Alert.alert("Error", data.error || "Failed to load dashboard");
-          if (announcementRes.status === 403) router.replace('/auth/Login');
+          Alert.alert("Error", data.error || "Failed to load");
+          if (announcementRes.status === 401) {
+            Alert.alert("Session Expired", "Please log in again.");
+            router.replace('/auth/Login')
+          };
+          if (response.status === 403) {
+            Alert.alert("Access Denied", data.error || "You do not have permission to view this.");
+          }
         }
     } catch (error) {
     console.log(error);
@@ -79,9 +88,10 @@ export default function TabLayout() {
 
 
   return (
+    <DataContext.Provider value={{classroomDetails, announcements, setAnnouncements}}>
     <View style={{flex: 1}}>
       <View>
-          <RenderHeader subject={classroomHeader} userRole={userRole} />
+          <SubjectBanner subject={classroomHeader} />
       </View>
       <Tabs>
           <Tabs.Screen name="Home" options={
@@ -102,5 +112,6 @@ export default function TabLayout() {
             }} /> */}
       </Tabs>
     </View>
+    </DataContext.Provider>
   );
 }

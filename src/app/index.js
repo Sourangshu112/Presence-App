@@ -42,8 +42,8 @@ export default function Index() {
         if (data && data.user) {
           const userRole = data.user.role;
 
-          if (userRole === 'STUDENT') router.replace('/Students/Dashboard');
-          else if (userRole === 'TEACHER') router.replace('/Teachers/Dashboard');
+          if (userRole === 'STUDENT') router.replace('/Students/StudentDashboard');
+          else if (userRole === 'TEACHER') router.replace('/Teachers/TeacherDashboard');
           else router.replace('/Shared/Details');
         } else {
           router.replace('/auth/Login');

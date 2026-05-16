@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { classDate } from '@/utils/dateTime';
 
 export default function ClassCard({ item, role, onPress }) {
   return (
@@ -17,7 +18,9 @@ export default function ClassCard({ item, role, onPress }) {
         <Text style={styles.footerText}>
           {role === 'TEACHER' ? `${item.student_count || 0} Students` : item.teacher_name}
         </Text>
-        {role === 'TEACHER' && <Text style={styles.footerText}>Created on: {item.created_at?.slice(0, 10)}</Text>}
+        <Text style={styles.footerText}>
+            {role === 'TEACHER' ? `Created on: ${classDate(item.created_at)}` : `Joined on: ${classDate(item.joined_at)}`}
+        </Text>
       </View>
     </TouchableOpacity>
   );

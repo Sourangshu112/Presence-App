@@ -29,7 +29,10 @@ export default function TeacherDashboard() {
 
       const response = await fetch(`${apiurl}/classroom/teacher/dashboard/`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': `Bearer ${token}` 
+        }
       });
 
       const data = await response.json();
