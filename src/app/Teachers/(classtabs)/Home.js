@@ -47,9 +47,7 @@ const MOCK_ANNOUNCEMENTS = [
 ];
 
 export default function SubjectHome() {
-  // In reality, you'd get these from Context/Auth and Expo Router params
-  // const { subjectId, name, teacher } = useLocalSearchParams();
-  const userRole = 'student'; // Change to 'student' to see the difference!
+  const userRole = 'teacher';
   
   const [announcementText, setAnnouncementText] = useState('');
 
@@ -79,4 +77,4 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 40,
   },
-});
+})

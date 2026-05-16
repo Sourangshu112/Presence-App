@@ -1,11 +1,14 @@
+import React from 'react';
 import { useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import LoadingScreen from '@/components/LoadingScreen';
+import { useApi } from '@/context/APIContext';
 
 export default function Index() {
   const router = useRouter();
+  const apiurl = useApi()
 
   useEffect(() => {
     // 1. Wrap the async logic in a function inside useEffect
@@ -19,7 +22,7 @@ export default function Index() {
           return; // Stop execution here
         }
 
-        const response = await fetch('http://10.215.120.11:8000/auth/verify_session/', {
+        const response = await fetch(`${apiurl}/auth/verify_session/`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

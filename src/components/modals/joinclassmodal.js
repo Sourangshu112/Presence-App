@@ -6,11 +6,13 @@ import {
 import * as SecureStore from 'expo-secure-store';
 import LoadingScreen from '../LoadingScreen';
 import ErrorText from '../ui/ErrorText';
+import { useApi } from '@/context/APIContext';
 
 export default function JoinClassModal({ visible, onClose, onSuccess }) {
   const [joinCode, setJoinCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
+  const apiurl = useApi()
 
   const handleJoinClass = async () => {
     // 1. Basic validation
@@ -26,7 +28,7 @@ export default function JoinClassModal({ visible, onClose, onSuccess }) {
       const token = await SecureStore.getItemAsync('access_token');
       
       // 3. Make the API Call to your new Django endpoint
-      const response = await fetch('http://10.215.120.11:8000/classroom/join/', {
+      const response = await fetch(`${apiurl}/classroom/join/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

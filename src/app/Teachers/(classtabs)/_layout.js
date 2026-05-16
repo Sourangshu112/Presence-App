@@ -16,13 +16,13 @@ export default function TabLayout() {
   const classroomDetails = useLocalSearchParams();
   
   const classroomHeader = {
-  id: classroomDetails.classroom,
+  id: classroomDetails.id,
   name: classroomDetails.classroom_name,
   teacherName: classroomDetails.teacher_name,
   bannerColor: classroomDetails.color_code,
-  joinedAt: classroomDetails.joined_at.slice(0,10)
+  createdAt: classroomDetails.created_at.slice(0,10)
 };
-  const userRole = 'student';
+  const userRole = 'teacher';
   const [announcement, setAnnouncement] = useState(null);
   const [loading, setLoading] = useState(true);
   const apiurl = useApi()
@@ -78,11 +78,6 @@ export default function TabLayout() {
   },[])
 
 
-
-
-
-
-
   return (
     <View style={{flex: 1}}>
       <View>
@@ -93,7 +88,7 @@ export default function TabLayout() {
             { headerShown: false, 
             tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} /> 
             }} />
-          <Tabs.Screen name="CheckAttendance" options={
+          {/* <Tabs.Screen name="CheckAttendance" options={
             { headerShown: false, 
             tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "calendar": "calendar-outline"} size={24} color={color} />  
             }} />
@@ -104,7 +99,7 @@ export default function TabLayout() {
           <Tabs.Screen name="MarkAttendance" options={
             { headerShown: false, 
             tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "camera":"camera-outline"} size={24} color={color} />  
-            }} />
+            }} /> */}
       </Tabs>
     </View>
   );

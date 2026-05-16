@@ -37,7 +37,7 @@ export default function ClassroomDashboard({role = 'STUDENT', userName = 'User',
         <View style={[styles.cardFooter, { justifyContent: role === 'TEACHER' ? 'space-between' : 'flex-end' }]}>
           <Text style={styles.footerText}>
             {role === 'TEACHER'
-              ? `${item.student_ccount || 0} Students`
+              ? `${item.student_count || 0} Students`
               : item.teacher_name}
           </Text>
           {

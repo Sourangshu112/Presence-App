@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import { GoogleSignin, isSuccessResponse, isErrorWithCode, statusCodes } from '@react-native-google-signin/google-signin';
 import { Alert } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
+import { ApiContext, useApi } from './APIContext';
 
 // 1. Create the Context
 export const AuthContext = createContext();
@@ -12,6 +13,7 @@ export const AuthProvider = ({ children }) => {
   const [tokenData, setTokenData] = useState({});
   const [errorHappened, setErrorHappened] = useState(false);
 
+  const apiurl = useApi();
 
   const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_WEB_CLIENT_ID;
 
@@ -38,7 +40,7 @@ export const AuthProvider = ({ children }) => {
 
         // 1. Set the state for your UI to use later
 
-        const response = await fetch('http://10.215.120.11:8000/auth/google/', {
+        const response = await fetch(`${apiurl}/auth/google/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
@@ -95,8 +97,4 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  return useContext(AuthContext);
 };

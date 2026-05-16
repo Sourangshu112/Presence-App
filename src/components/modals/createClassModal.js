@@ -6,11 +6,13 @@ import {
 import * as SecureStore from 'expo-secure-store';
 import LoadingScreen from '../LoadingScreen';
 import ErrorText from '../ui/ErrorText';
+import { useApi } from '@/context/APIContext';
 
 export default function CreateClassModal({ visible, onClose, onSuccess }) {
   const [className, setClassName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
+  const apiurl = useApi();
 
   const handleCreateClass = async () => {
     // 1. Basic validation
@@ -26,7 +28,7 @@ export default function CreateClassModal({ visible, onClose, onSuccess }) {
       const token = await SecureStore.getItemAsync('access_token');
       
       // 3. Make the API Call to the Django endpoint we built earlier
-      const response = await fetch('http://10.215.120.11:8000/classroom/create/', {
+      const response = await fetch(`${apiurl}/classroom/create/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
