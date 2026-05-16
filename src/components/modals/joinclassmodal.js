@@ -3,56 +3,28 @@ import {
   View, Text, TextInput, TouchableOpacity, 
   Modal, ActivityIndicator, StyleSheet, Alert 
 } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
 import LoadingScreen from '../LoadingScreen';
 import ErrorText from '../ui/ErrorText';
-import { useApi } from '@/context/APIContext';
+import { useClassroomApi } from '@/api/classroom.api';
 
 export default function JoinClassModal({ visible, onClose, onSuccess }) {
   const [joinCode, setJoinCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
-  const apiurl = useApi()
+  const {joinClass} = useClassroomApi();
 
   const handleJoinClass = async () => {
-    // 1. Basic validation
-    if (!joinCode.trim()) {
-      Alert.alert("Error", "Please enter a join code.");
-      return;
-    }
 
+    if (!joinCode.trim()) return setErrorText("Joinning Code cannot be empty");
     setIsLoading(true);
 
     try {
-      // 2. Get the token
-      const token = await SecureStore.getItemAsync('access_token');
-      
-      // 3. Make the API Call to your new Django endpoint
-      const response = await fetch(`${apiurl}/classroom/join/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          join_code: joinCode.trim().toUpperCase() // Force uppercase just in case
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        Alert.alert("Success!", `You have joined ${data.classroom.name}`);
-        setJoinCode(''); // Clear the input
-        onSuccess();     // Tell the dashboard to refresh its list!
-        onClose();       // Close the modal
-      } else {
-        // Handle custom backend errors (e.g., "Already enrolled" or "Invalid code")
-        Alert.alert("Failed", data.error || "Could not join class.");
-      }
-
+      const data = await joinClass(joinCode.trim());
+      Alert.alert("Success!", `You have joined ${data.classroom.name}`);
+      setJoinCode(''); 
+      onSuccess();   
+      onClose();
     } catch (error) {
-      console.error("Join Class Error:", error);
       Alert.alert("Network Error", "Could not connect to the server.");
     } finally {
       setIsLoading(false);

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
 
 // Modular Imports
@@ -11,7 +10,7 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import ClassCard from '@/components/dashboard/ClassCard';
 import EmptyState from '@/components/dashboard/EmptyState';
 import FAB from '@/components/dashboard/FAB';
-import { useApi } from '@/context/APIContext';
+import { useClassroomApi } from '@/api/classroom.api';
 
 export default function TeacherDashboard() {
   const [teacherInfo, setTeacherInfo] = useState(null);
@@ -20,31 +19,15 @@ export default function TeacherDashboard() {
   const [isModalVisible, setModalVisible] = useState(false);
   
   const router = useRouter();
-  const apiurl = useApi();
+  const {getTeacherDashboard} = useClassroomApi();
 
   const fetchDashboardData = async () => {
     try {
-      const token = await SecureStore.getItemAsync('access_token');
-      if (!token) return router.replace('/auth/Login');
-
-      const response = await fetch(`${apiurl}/classroom/teacher/dashboard/`, {
-        method: 'GET',
-        headers: { 
-          'Content-Type': 'application/json', 
-          'Authorization': `Bearer ${token}` 
-        }
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        setTeacherInfo(data.teacher);
-        setTeachingClasses(data.teaching_classes);
-      } else {
-        Alert.alert("Error", data.error || "Failed to load dashboard");
-        if (response.status === 403) router.replace('/auth/Login');
-      }
+      const data = await getTeacherDashboard();
+      setTeacherInfo(data.teacher);
+      setTeachingClasses(ata.teaching_classes)
     } catch (error) {
-      Alert.alert("Network Error", "Could not connect to the server.");
+      Alert.alert("Network Error", "Could not load the dashboard");
     } finally {
       setIsLoading(false);
     }

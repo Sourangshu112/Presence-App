@@ -1,70 +1,41 @@
-import React, { useEffect } from "react"; // Capital R in React, imported useEffect
+import React, { useEffect } from "react"; 
 import { useRouter, useLocalSearchParams } from "expo-router";
-import * as SecureStore from 'expo-secure-store';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Alert } from "react-native";
-import { useApi } from "@/context/APIContext";
+import { useAuthApi } from "@/api/auth.api";
+
 
 export default function Process() {
   const { name, selectedRole, faceImage } = useLocalSearchParams();
   const router = useRouter();
-  const apiurl = useApi();
+  const { addStudentData, addTeacherData } = useAuthApi();
 
   useEffect(() => {
-    // Wrapped in useEffect so it runs automatically
     const handleAPIConnection = async () => {
       try {
-        const token = await SecureStore.getItemAsync('access_token');
-        if (!token) {
-          throw new Error("No Token found");
-        }
-
         const formData = new FormData();
         formData.append('name', name);
 
-        let endpoint = '';
-
         if (selectedRole === "STUDENT") {
-          endpoint = `${apiurl}/auth/add_student_data`;
           formData.append('face_image', {
-            uri: faceImage,
-            type: 'image/jpeg',
-            name: 'capture.jpg',
+            uri: faceImage, type: 'image/jpeg', name: 'capture.jpg',
           });
-        } else if (selectedRole === "TEACHER") {
-          endpoint = `${apiurl}/auth/add_teacher_data`;
-        }
-
-        const response = await fetch(endpoint, {
-          method: 'PUT', // or PATCH
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          body: formData, 
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
+          await addStudentData(formData);
           Alert.alert("Success", "You have been registered successfully");
-          // Route based on role
-          if (selectedRole === "STUDENT") router.replace('/Students/Dashboard');
-          if (selectedRole === "TEACHER") router.replace('/Teachers/Dashboard');
-        } else {
-          console.error("Backend Error:", data);
-          Alert.alert("Failed", data.error);
-          router.replace('/Shared/Details'); 
+          router.replace('/Students/Dashboard');
+        } else if (selectedRole === "TEACHER") {
+          await addTeacherData(formData);
+          Alert.alert("Success", "You have been registered successfully");
+          router.replace('/Teachers/Dashboard');
         }
-
-      } catch (error) {
-        console.error("Upload error:", error);
-        Alert.alert("Network Error", "Could not connect to the server.");
-        router.replace('/auth/Login');
+      } catch (err) {
+        Alert.alert("Registration Failed", err.error || "An error occurred");
+        router.replace('/Shared/Details'); 
       }
     };
 
     handleAPIConnection();
-  }, []); // Empty array ensures it runs only once on mount
+  }, []); 
 
   return <LoadingScreen />;
 }

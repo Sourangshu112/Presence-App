@@ -1,44 +1,20 @@
-import React from 'react';
-import { useEffect } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import React, { useEffect } from 'react';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
 import LoadingScreen from '@/components/LoadingScreen';
-import { useApi } from '@/context/APIContext';
+import { useAuthApi } from '@/api/auth.api';
 
 export default function Index() {
   const router = useRouter();
-  const apiurl = useApi()
+  const { verifySession } = useAuthApi();
 
   useEffect(() => {
-    // 1. Wrap the async logic in a function inside useEffect
     const checkExistingSession = async () => {
       try {
-        const token = await SecureStore.getItemAsync('access_token');
+        // The API client automatically checks the token and handles 401 redirects
+        const data = await verifySession();
         
-        // 2. Use router.replace() instead of returning <Redirect />
-        if (!token) {
-          router.replace('/auth/Login');
-          return; // Stop execution here
-        }
-
-        const response = await fetch(`${apiurl}/auth/verify_session/`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        // 3. Handle expired tokens (401 Unauthorized)
-        if (!response.ok) {
-            router.replace('/auth/Login');
-            return;
-        }
-
-        const data = await response.json();
-        
-        // 4. Route based on role
+        // Route based on role
         if (data && data.user) {
           const userRole = data.user.role;
 
@@ -48,10 +24,8 @@ export default function Index() {
         } else {
           router.replace('/auth/Login');
         }
-
       } catch (error) {
-        console.log("Network or Storage Error: ", error);
-        router.replace('/auth/Login');
+        console.log("Session verification failed:", error);
       }
     };
 

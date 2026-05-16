@@ -2,7 +2,8 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import { GoogleSignin, isSuccessResponse, isErrorWithCode, statusCodes } from '@react-native-google-signin/google-signin';
 import { Alert } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
-import { ApiContext, useApi } from './APIContext';
+import { useAuthApi } from '@/api/auth.api';
+const { loginWithGoogleBackend } = useAuthApi();
 
 // 1. Create the Context
 export const AuthContext = createContext();
@@ -13,7 +14,6 @@ export const AuthProvider = ({ children }) => {
   const [tokenData, setTokenData] = useState({});
   const [errorHappened, setErrorHappened] = useState(false);
 
-  const apiurl = useApi();
 
   const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_WEB_CLIENT_ID;
 
@@ -35,51 +35,28 @@ export const AuthProvider = ({ children }) => {
       const tokens = await GoogleSignin.getTokens();
 
       if (isSuccessResponse(responseOfGoogle)){
-        const {idToken} = responseOfGoogle.data;
+        const { idToken } = responseOfGoogle.data;
         const accessToken = tokens.accessToken;
 
-        // 1. Set the state for your UI to use later
+        try {
+          const data = await loginWithGoogleBackend(accessToken, idToken);
 
-        const response = await fetch(`${apiurl}/auth/google/`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            access_token: accessToken,
-            id_token: idToken 
-          }), 
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          setBackendData(data)
+          setBackendData(data);
           await SecureStore.setItemAsync('access_token', data.access);
           await SecureStore.setItemAsync('refresh_token', data.refresh);
           setErrorHappened(false);
           return data;
-        } else {
+          
+        } catch (err) {
           setErrorHappened(true);
-          console.error("Backend validation failed:", data);
+          Alert.alert("Failed", "Could not connect to the Server")
           return null;
         }
-      } else {
-        // If not successful, handle the cancellation/failure
-        Alert.alert("Signin was cancelled");
-        console.log("Signin was cancelled");
       }
-
-    } catch (error) {
-      if(isErrorWithCode(error)){
-        setErrorHappened(true);
-        console.log("Google Sign-In specific error:", error);
-        return null;
-      } else {
-        setErrorHappened(true);
-        console.log("Error in backend:", error);
-        return null;
-      }
-    } finally {
-      setIsLoading(false);
+    } catch (err) {
+      setErrorHappened(true);
+      Alert.alert("Failed", "Could not Connect to Google");
+      return null;
     }
   };
 

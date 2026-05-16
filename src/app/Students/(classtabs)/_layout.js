@@ -1,11 +1,9 @@
-import { Tabs } from 'expo-router';
+import { Tabs, useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams } from 'expo-router';
 import { createContext, useEffect, useState } from 'react';
-import { useApi } from '@/context/APIContext';
-import * as SecureStore from 'expo-secure-store';
 import SubjectBanner from '@/components/ui/SubjectBanner';
+import { useClassroomDataApi } from '@/api/classroomData.api';
 
 
 
@@ -13,8 +11,10 @@ export const DataContext = createContext();
 
 
 export default function TabLayout() {
+  const router = useRouter()
   const color = "black";
   const classroomDetails = useLocalSearchParams();
+  const {getAnnouncements} = useClassroomDataApi();
   
   const classroomHeader = {
   id: classroomDetails.classroom,
@@ -23,28 +23,14 @@ export default function TabLayout() {
   bannerColor: classroomDetails.color_code,
   joinedAt: classroomDetails.joined_at.slice(0,10)
 };
-  const userRole = 'student';
-  const [announcement, setAnnouncement] = useState(null);
+  const userRole = 'STUDENT';
+  const [announcements, setAnnouncements] = useState(null);
   const [loading, setLoading] = useState(true);
-  const apiurl = useApi()
 
   useEffect(() => {
     const fetchdata = async () => {
       setLoading(true);
       try {
-        const token = await SecureStore.getItemAsync('access_token');
-        
-        if (!token) {
-          router.replace('/auth/Login');
-          return;
-        }
-        const obj = {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        }
         /*const [announcementRes, attendanceRes, 
                 peopleRes, markAttendanceRes] = await Promise.allSettled(
                   fetch(),
@@ -52,29 +38,16 @@ export default function TabLayout() {
                   fetch(),
                   fetch()
                 )*/
-        const announcementRes = await fetch(`${apiurl}/classroom_data/${classroomHeader.id}/announcements/`,{
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        const data = await announcementRes.json();
-        if (announcementRes.ok) {
-          // 3. Save the data to state so React can render it
-          console.log(data);
-        } else {
-          // Handle specific backend errors (like inactive account)
-          Alert.alert("Error", data.error || "Failed to load dashboard");
-          if (announcementRes.status === 403) router.replace('/auth/Login');
+
+        const announcementdata = getAnnouncements(classroomDetails.id);
+        setAnnouncements(announcementdata.announcements);
+        } catch (error) {
+          Alert.alert("Failed", "Could not load announcements, something went wrong");
         }
-    } catch (error) {
-    console.log(error);
-  }
-  finally{
-    setLoading(false)
-  }
-  }
+        finally{
+          setLoading(false)
+        }
+      }
   fetchdata();
   },[])
 

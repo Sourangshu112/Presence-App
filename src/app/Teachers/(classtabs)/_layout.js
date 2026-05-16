@@ -1,12 +1,9 @@
-import { Tabs } from 'expo-router';
+import { createContext, useEffect, useState } from 'react';
+import { Tabs, useRouter, useLocalSearchParams } from 'expo-router';
 import { Alert, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams } from 'expo-router';
-import { createContext, useEffect, useState } from 'react';
-import { useApi } from '@/context/APIContext';
-import * as SecureStore from 'expo-secure-store';
 import SubjectBanner from '@/components/ui/SubjectBanner';
-import { useRouter } from 'expo-router';
+import { useClassroomDataApi } from '@/api/classroomData.api';
 
 
 export const DataContext = createContext();
@@ -16,6 +13,7 @@ export default function TabLayout() {
   const router = useRouter();
   const color = "black";
   const classroomDetails = useLocalSearchParams();
+  const {getAnnouncements} = useClassroomDataApi();
   
   const classroomHeader = {
   id: classroomDetails.id,
@@ -27,25 +25,12 @@ export default function TabLayout() {
   const userRole = 'TEACHER';
   const [announcements, setAnnouncements] = useState(null);
   const [loading, setLoading] = useState(true);
-  const apiurl = useApi()
+
 
   useEffect(() => {
     const fetchdata = async () => {
       setLoading(true);
       try {
-        const token = await SecureStore.getItemAsync('access_token');
-        
-        if (!token) {
-          router.replace('/auth/Login');
-          return;
-        }
-        const obj = {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        }
         /*const [announcementRes, attendanceRes, 
                 peopleRes, markAttendanceRes] = await Promise.allSettled(
                   fetch(),
@@ -53,36 +38,16 @@ export default function TabLayout() {
                   fetch(),
                   fetch()
                 )*/
-        const announcementRes = await fetch(`${apiurl}/classroom_data/${classroomDetails.id}/announcements/`,{
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        const data = await announcementRes.json();
-        if (announcementRes.ok) {
-          // 3. Save the data to state so React can render it
-          console.log(data);
-          setAnnouncements(data.announcements)
-        } else {
-          // Handle specific backend errors (like inactive account)
-          Alert.alert("Error", data.error || "Failed to load");
-          if (announcementRes.status === 401) {
-            Alert.alert("Session Expired", "Please log in again.");
-            router.replace('/auth/Login')
-          };
-          if (response.status === 403) {
-            Alert.alert("Access Denied", data.error || "You do not have permission to view this.");
-          }
+
+        const announcementdata = getAnnouncements(classroomDetails.id);
+        setAnnouncements(announcementdata.announcements);
+        } catch (error) {
+          Alert.alert("Failed", "Could not load announcements, something went wrong");
         }
-    } catch (error) {
-    console.log(error);
-  }
-  finally{
-    setLoading(false)
-  }
-  }
+        finally{
+          setLoading(false)
+        }
+      }
   fetchdata();
   },[])
 

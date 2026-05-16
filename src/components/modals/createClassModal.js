@@ -1,61 +1,30 @@
 import React, { useState } from 'react';
 import { 
   View, Text, TextInput, TouchableOpacity, 
-  Modal, ActivityIndicator, StyleSheet, Alert 
+  Modal, StyleSheet, Alert 
 } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
 import LoadingScreen from '../LoadingScreen';
 import ErrorText from '../ui/ErrorText';
-import { useApi } from '@/context/APIContext';
+import { useClassroomApi } from '@/api/classroom.api';
 
 export default function CreateClassModal({ visible, onClose, onSuccess }) {
   const [className, setClassName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
-  const apiurl = useApi();
+  const { createClass } = useClassroomApi();
 
   const handleCreateClass = async () => {
-    // 1. Basic validation
-    if (!className.trim()) {
-      setErrorText("Classname cannot be empty");
-      return;
-    }
-
+    if (!className.trim()) return setErrorText("Classname cannot be empty");
     setIsLoading(true);
 
     try {
-      // 2. Get the token
-      const token = await SecureStore.getItemAsync('access_token');
-      
-      // 3. Make the API Call to the Django endpoint we built earlier
-      const response = await fetch(`${apiurl}/classroom/create/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          name: className.trim() 
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        Alert.alert(
-            "Class Created!", 
-            `Your join code is: ${data.classroom.join_code}\nGive this to your students.`
-        );
-        setClassName(''); // Clear the input
-        onSuccess();      // Refresh the teacher dashboard!
-        onClose();        // Close the modal
-      } else {
-        Alert.alert("Failed", data.error || "Could not create class.");
-      }
-
-    } catch (error) {
-      console.error("Create Class Error:", error);
-      Alert.alert("Network Error", "Could not connect to the server.");
+      const data = await createClass(className.trim());
+      Alert.alert("Class Created!", `Your join code is: ${data.classroom.join_code}\nGive this to your students.`);
+      setClassName(''); 
+      onSuccess();      
+      onClose();        
+    } catch (err) {
+      Alert.alert("Failed", err.error || "Could not create class.");
     } finally {
       setIsLoading(false);
     }

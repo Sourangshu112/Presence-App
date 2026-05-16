@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
+import { useClassroomApi } from '@/api/classroom.api';
 
 // Modular Imports
 import LoadingScreen from '@/components/LoadingScreen';
@@ -11,7 +11,8 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import ClassCard from '@/components/dashboard/ClassCard';
 import EmptyState from '@/components/dashboard/EmptyState';
 import FAB from '@/components/dashboard/FAB';
-import { useApi } from '@/context/APIContext';
+
+
 
 export default function StudentDashboard() {
   const [studentInfo, setStudentInfo] = useState(null);
@@ -20,28 +21,15 @@ export default function StudentDashboard() {
   const [isModalVisible, setModalVisible] = useState(false);
   
   const router = useRouter();
-  const apiurl = useApi();
+  const { getStudentDashboard } = useClassroomApi();
 
   const fetchDashboardData = async () => {
     try {
-      const token = await SecureStore.getItemAsync('access_token');
-      if (!token) return router.replace('/auth/Login');
-
-      const response = await fetch(`${apiurl}/classroom/student/dashboard/`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        setStudentInfo(data.student);
-        setEnrolledClasses(data.enrolled_classes);
-      } else {
-        Alert.alert("Error", data.error || "Failed to load dashboard");
-        if (response.status === 403) router.replace('/auth/Login');
-      }
-    } catch (error) {
-      Alert.alert("Network Error", "Could not connect to the server.");
+      const data = await getStudentDashboard();
+      setStudentInfo(data.student);
+      setEnrolledClasses(data.enrolled_classes);
+    } catch (err) {
+      Alert.alert("Error", err.error || "Failed to load dashboard");
     } finally {
       setIsLoading(false);
     }
