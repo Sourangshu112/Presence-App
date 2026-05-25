@@ -39,9 +39,10 @@ export default function TabLayout() {
                   fetch()
                 )*/
 
-        const announcementdata = getAnnouncements(classroomDetails.id);
+        const announcementdata = await getAnnouncements(classroomDetails.classroom);
         setAnnouncements(announcementdata.announcements);
         } catch (error) {
+          console.log(error);
           Alert.alert("Failed", "Could not load announcements, something went wrong");
         }
         finally{

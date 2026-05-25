@@ -8,6 +8,7 @@ export default function SubjectBanner({ subject }) {
         <Text style={styles.subjectName}>{subject.name}</Text>
         <Text style={styles.teacherName}>Teacher: {subject.teacherName}</Text>
         <Text style={styles.teacherName}>Joined on: {subject.joinedAt}</Text>
+        <Text style={styles.teacherName}>Join Code: {subject.joinCode}</Text>
       </View>
     </View>
   );
@@ -22,8 +23,8 @@ const styles = StyleSheet.create({
   banner: {
     borderRadius: 12,
     padding: 20,
-    height: 140,
-    justifyContent: 'flex-end',
+    height: 180,
+    justifyContent: 'flex-mid',
     marginBottom: 16,
     elevation: 4, 
     shadowColor: '#000', 

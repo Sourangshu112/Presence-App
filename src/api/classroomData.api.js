@@ -10,6 +10,8 @@ export const useClassroomDataApi = () => {
             fetchApi(`/classroom_data/${id}/announcements/create/`, {
                 method: 'POST',
                 body: JSON.stringify({content})
-            })
+            }),
+        getclassRoster: (id) => 
+            fetchApi(`/classroom_data/${id}/roster/`, {method: 'GET'}),
     }
 }

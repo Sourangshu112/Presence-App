@@ -45,11 +45,17 @@ export const useApiClient = () => {
 
       return data;
     } catch (error) {
-      // If the error has a status, it came from our rejection block above
-      if (error.status) return Promise.reject(error);
+    if (error.status) return Promise.reject(error);
       
-      // Otherwise, it's a hard network failure
-      return Promise.reject({ status: 500, error: "Network Error: Could not connect to the server." });
+      // 🔥 THE FIX: Log the actual hidden error to your Expo terminal
+      console.error("🔥 FATAL API CLIENT ERROR:", error);
+
+      // Return the actual error message so your UI Alerts can display it
+      return Promise.reject({ 
+        status: 500, 
+        error: `Client Error: ${error.message || "Unknown error occurred"}`,
+        originalError: error // Pass the whole object just in case
+      });
     }
   };
 

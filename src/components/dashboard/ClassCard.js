@@ -14,7 +14,7 @@ export default function ClassCard({ item, role, onPress }) {
         {role === 'TEACHER' && <Text style={styles.classSubtitle}>{item.join_code}</Text>}
       </View>
 
-      <View style={[styles.cardFooter, { justifyContent: role === 'TEACHER' ? 'space-between' : 'flex-end' }]}>
+      <View style={styles.cardFooter}>
         <Text style={styles.footerText}>
           {role === 'TEACHER' ? `${item.student_count || 0} Students` : item.teacher_name}
         </Text>
@@ -36,6 +36,6 @@ const styles = StyleSheet.create({
   cardHeader: { flex: 1 },
   classTitle: { fontSize: 22, fontWeight: '600', color: '#fff', marginBottom: 4 },
   classSubtitle: { fontSize: 14, color: 'rgba(255, 255, 255, 0.8)' },
-  cardFooter: { flexDirection: 'row' },
+  cardFooter: { flexDirection: 'row', justifyContent: 'space-between' },
   footerText: { fontSize: 13, fontWeight: '500', color: '#fff' },
 });

@@ -25,9 +25,10 @@ export default function TeacherDashboard() {
     try {
       const data = await getTeacherDashboard();
       setTeacherInfo(data.teacher);
-      setTeachingClasses(ata.teaching_classes)
+      setTeachingClasses(data.teaching_classes)
     } catch (error) {
       Alert.alert("Network Error", "Could not load the dashboard");
+      console.log(error)
     } finally {
       setIsLoading(false);
     }

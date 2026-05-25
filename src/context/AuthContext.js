@@ -3,12 +3,12 @@ import { GoogleSignin, isSuccessResponse, isErrorWithCode, statusCodes } from '@
 import { Alert } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useAuthApi } from '@/api/auth.api';
-const { loginWithGoogleBackend } = useAuthApi();
 
 // 1. Create the Context
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const { loginWithGoogleBackend } = useAuthApi();
   const [backendData, setBackendData] = useState(null);
   const [isLoading, setIsLoading] = useState(true); 
   const [tokenData, setTokenData] = useState({});

@@ -29,7 +29,7 @@ export default function StudentDashboard() {
       setStudentInfo(data.student);
       setEnrolledClasses(data.enrolled_classes);
     } catch (err) {
-      Alert.alert("Error", err.error || "Failed to load dashboard");
+      Alert.alert("Error", "Failed to load dashboard");
     } finally {
       setIsLoading(false);
     }
