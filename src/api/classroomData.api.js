@@ -13,5 +13,7 @@ export const useClassroomDataApi = () => {
             }),
         getclassRoster: (id) => 
             fetchApi(`/classroom_data/${id}/roster/`, {method: 'GET'}),
+        getAttendanceOverview: (id) => 
+            fetchApi(`/attendance/${id}/overview/`, {method: 'GET'})
     }
 }

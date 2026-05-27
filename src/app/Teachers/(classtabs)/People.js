@@ -1,15 +1,29 @@
 // src/app/(teacher)/(classtabs)/People.js
 import React, { useContext } from 'react';
-import { View, Text, StyleSheet, SectionList, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, SectionList, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { DataContext } from './_layout';
 import { PersonRowWithAction, PersonRowWithoutAction } from '@/components/ui/PersonRow';
+import { useRouter } from 'expo-router';
 
 export default function TeacherPeopleScreen() {
-  const {classroomData} = useContext(DataContext)
+  const router = useRouter()
+  const {classroomData} = useContext(DataContext);
+  const {attendanceOverview} = useContext(DataContext);
   
   const handleAddStudent = () => {
     Alert.alert("Invite Student", "Open modal to add student email or send invite link.");
+  };
+
+  const handleCheckAttendance = (student_id) => {
+    console.log(`Checking attendance for: ${student_id}`);
+    router.push({
+      pathname: "../(viewAttendance)/viewAttendancePerStudent",
+      params: {
+          stuId: student_id,
+          data: JSON.stringify(attendanceOverview)
+      }
+  })
   };
 
 
@@ -61,11 +75,13 @@ export default function TeacherPeopleScreen() {
           </View>
         </View>
         <View style={styles.divider} />
+        <ScrollView>
         {
           classroomData.students && classroomData.students.map((student)=>(
-            <PersonRowWithAction key={student.student_id} item={student} />
+            <PersonRowWithAction key={student.student_id} item={student} onPressCheckAttendance={handleCheckAttendance} />
           ))
         }
+        </ScrollView>
       </View>
     </View>
   );

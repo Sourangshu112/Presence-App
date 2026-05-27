@@ -6,7 +6,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 
 export default function AddFaceDataScreen() {
-  const router = useRouter();;
+  const router = useRouter();
   const {name , selectedRole, faceImage} = useLocalSearchParams();
   const handleLivenessSuccess = async (photo) => {
       router.push({

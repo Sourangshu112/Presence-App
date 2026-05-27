@@ -9,7 +9,6 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const { loginWithGoogleBackend } = useAuthApi();
-  const [backendData, setBackendData] = useState(null);
   const [isLoading, setIsLoading] = useState(true); 
   const [tokenData, setTokenData] = useState({});
   const [errorHappened, setErrorHappened] = useState(false);
@@ -40,13 +39,10 @@ export const AuthProvider = ({ children }) => {
 
         try {
           const data = await loginWithGoogleBackend(accessToken, idToken);
-
-          setBackendData(data);
           await SecureStore.setItemAsync('access_token', data.access);
           await SecureStore.setItemAsync('refresh_token', data.refresh);
           setErrorHappened(false);
           return data;
-          
         } catch (err) {
           setErrorHappened(true);
           Alert.alert("Failed", "Could not connect to the Server")

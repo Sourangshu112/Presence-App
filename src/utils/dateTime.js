@@ -12,3 +12,11 @@ export const announcementTime = (date) => {
 export const classDate = (date) => {
     return format(new Date(date), "dd-MM-yyyy")
 }
+
+export const updateMarkedDate = (date) => {
+    return format(new Date(date), "yyyy-MM-dd")
+}
+
+export const sessionDateAndTime = (date) => {
+    return format(new Date(date), "dd-MM-yyyy, hh a")
+}

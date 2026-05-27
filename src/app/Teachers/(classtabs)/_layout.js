@@ -14,7 +14,7 @@ export default function TabLayout() {
   const router = useRouter();
   const color = "black";
   const classroomDetails = useLocalSearchParams();
-  const {getAnnouncements, getclassRoster} = useClassroomDataApi();
+  const {getAnnouncements, getclassRoster, getAttendanceOverview} = useClassroomDataApi();
   
   const classroomHeader = {
   id: classroomDetails.id,
@@ -27,40 +27,48 @@ export default function TabLayout() {
   const userRole = 'TEACHER';
   const [announcements, setAnnouncements] = useState(null);
   const [classroomData, setClassroomData] = useState(null);
+  const [attendanceOverview, setAttendanceOverview] = useState(null);
   const [loading, setLoading] = useState(true);
 
 
   useEffect(() => {
     const fetchdata = async () => {
       setLoading(true);
+      /*const [announcementRes, attendanceRes, 
+        peopleRes, markAttendanceRes] = await Promise.allSettled(
+          fetch(),
+          fetch(),
+          fetch(),
+          fetch()
+        )*/
       try {
-        /*const [announcementRes, attendanceRes, 
-                peopleRes, markAttendanceRes] = await Promise.allSettled(
-                  fetch(),
-                  fetch(),
-                  fetch(),
-                  fetch()
-                )*/
-
         const announcementData = await getAnnouncements(classroomDetails.id);
         setAnnouncements(announcementData.announcements);
-        } catch (error) {
-          Alert.alert("Failed", "Could not load announcements, something went wrong");
-        }
-        finally{
+      } catch (error) {
+        Alert.alert("Failed", "Could not load announcements, something went wrong");
+      }
+      try{
+        const classroomData = await getclassRoster(classroomDetails.id);
+        setClassroomData(classroomData);
+      } catch (error) {
+        Alert.alert("Failed", "Could not load Students, something went wrong");
+      }
+      try {
+        const attendanceOverviewData = await getAttendanceOverview(classroomDetails.id);
+        setAttendanceOverview(attendanceOverviewData);
+      } catch (error) {
+        Alert.alert("Failed", "Could not load Students Attendance, something went wrong");
+      } finally{
           setLoading(false)
         }
 
-        const classroomData = await getclassRoster(classroomDetails.id);
-        setClassroomData(classroomData);
-        console.log(classroomData);
       }
   fetchdata();
   },[])
 
 
   return (
-    <DataContext.Provider value={{classroomDetails, announcements, setAnnouncements, classroomData}}>
+    <DataContext.Provider value={{classroomDetails, announcements, setAnnouncements, classroomData, attendanceOverview}}>
     <View style={{flex: 1}}>
       <View>
           <SubjectBanner subject={classroomHeader}  />
@@ -73,12 +81,16 @@ export default function TabLayout() {
           
           <Tabs.Screen name="People" options={
             { headerShown: false, 
-            tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "people":"people-outline"} size={24} color={color} />  
+              tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "people":"people-outline"} size={24} color={color} />,
+              title: "Students"
             }} />
-          {/* <Tabs.Screen name="CheckAttendance" options={
+          
+          <Tabs.Screen name="sessionCalender" options={
             { headerShown: false, 
-            tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "calendar": "calendar-outline"} size={24} color={color} />  
+            tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "calendar": "calendar-outline"} size={24} color={color} />,
+            title: "Sessions",    
             }} />
+          {/* 
           <Tabs.Screen name="MarkAttendance" options={
             { headerShown: false, 
             tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "camera":"camera-outline"} size={24} color={color} />  
