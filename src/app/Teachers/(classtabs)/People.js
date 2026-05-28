@@ -16,37 +16,13 @@ export default function TeacherPeopleScreen() {
   };
 
   const handleCheckAttendance = (student_id) => {
-    console.log(`Checking attendance for: ${student_id}`);
     router.push({
-      pathname: "../(viewAttendance)/viewAttendancePerStudent",
+      pathname: "./viewAttendancePerStudent",
       params: {
-          stuId: student_id,
-          data: JSON.stringify(attendanceOverview)
+          stuId: student_id
       }
   })
   };
-
-
-  const renderSectionHeader = ({ section: { title, data } }) => (
-    <View style={styles.sectionHeaderContainer}>
-      <View style={styles.sectionHeaderTop}>
-        <Text style={styles.sectionTitle}>{title}</Text>
-        
-        {title === 'Students' && (
-          <View style={styles.actionHeaderRight}>
-            {/* Utilize the total_students field from your payload */}
-            <Text style={styles.studentCount}>
-              {classroomData?.total_students || data.length} students
-            </Text>
-            <TouchableOpacity onPress={handleAddStudent} style={styles.addIcon}>
-              <Ionicons name="person-add" size={22} color="#4A90E2" />
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
-      <View style={styles.divider} />
-    </View>
-  );
 
   return (
     <View style={styles.container}>
@@ -56,7 +32,7 @@ export default function TeacherPeopleScreen() {
         </View>
         <View style={styles.divider} />
         {
-          classroomData.teachers && classroomData.teachers.map((teacher) => 
+          classroomData?.teachers && classroomData.teachers.map((teacher) => 
           <PersonRowWithoutAction key={teacher.user_id} item={teacher} isTeacher={true} />
         )
         }
@@ -77,7 +53,7 @@ export default function TeacherPeopleScreen() {
         <View style={styles.divider} />
         <ScrollView>
         {
-          classroomData.students && classroomData.students.map((student)=>(
+          classroomData?.students && classroomData.students.map((student)=>(
             <PersonRowWithAction key={student.student_id} item={student} onPressCheckAttendance={handleCheckAttendance} />
           ))
         }

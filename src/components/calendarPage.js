@@ -27,8 +27,8 @@ const getMarkedDates = () => {
   const strictlyAbsent = absentDates.filter(date => !mixedDates.includes(date));
 
   markCategory(sessionDates, "#2153eb");
-  markCategory(strictlyPresent, "green");
-  markCategory(strictlyAbsent, "red");
+  markCategory(strictlyPresent, "#4CAF50");
+  markCategory(strictlyAbsent, "#F44336");
   markCategory(mixedDates, "#FF9800");
   return marked;
   };

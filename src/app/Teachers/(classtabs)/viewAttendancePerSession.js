@@ -1,15 +1,22 @@
-import React from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import React, { useState, useContext } from "react";
+import { View, Text, FlatList, StyleSheet, Touchable, TouchableOpacity, Alert } from "react-native";
 import { useLocalSearchParams } from "expo-router";
+import { Dropdown } from "react-native-element-dropdown";
+import { useAttendanceApi } from "@/api/attendance.api";
+import { DataContext } from "./_layout";
+
 
 export default function ViewAttendancePerSession() {
-    const { sId, data } = useLocalSearchParams();
-    const parsedData = data ? JSON.parse(data) : null;
+    const { sId, date } = useLocalSearchParams();
+    const {attendanceOverview, refetchAttendance} = useContext(DataContext);
+    const {patchAttendance} = useAttendanceApi()
+    const [loading, setLoading] = useState(false);
+    
 
     // 1. DERIVE THE MAPPING
     // We map over the roster to build a clean list of students and their statuses
-    const attendanceList = parsedData?.roster?.map(student => {
-        const record = parsedData.records?.find(
+    const attendanceList = attendanceOverview?.roster?.map(student => {
+        const record = attendanceOverview.records?.find(
             r => r.session_id === sId && r.student_id === student.student_id
         );
 
@@ -20,10 +27,30 @@ export default function ViewAttendancePerSession() {
         };
     }) || []; 
 
+    const handleUpdate = async (student_id, current_status) => {
+        try{
+            setLoading(true)
+            const new_status = (current_status === "PRESENT")? "ABSENT" : "PRESENT";
+
+            const responce = await patchAttendance({
+                session_id: sId,
+                student_id: student_id,
+                current_status: current_status,
+                new_status: new_status,
+            })
+            if (responce.message === "Attendance successfully updated.") refetchAttendance()
+        }catch (error){
+            Alert.alert("Failed", "Could not Update Attendance. Try again!")
+            console.log(error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
     // 2. RENDER THE UI
     return (
         <View style={styles.container}>
-            <Text style={styles.header}>Attendance Details</Text>
+            <Text style={styles.header}>Attendance Details of {"\n"}{date}</Text>
 
             <FlatList
                 data={attendanceList}
@@ -31,6 +58,8 @@ export default function ViewAttendancePerSession() {
                 renderItem={({ item }) => (
                     <View style={styles.card}>
                         <Text style={styles.studentName}>{item.name}</Text>
+                        
+                        { !(loading) ? <TouchableOpacity onPress={() => handleUpdate(item.student_id, item.status)}>
                         <Text style={[
                             styles.statusBadge,
                             item.status === 'PRESENT' ? styles.present : 
@@ -38,17 +67,21 @@ export default function ViewAttendancePerSession() {
                         ]}>
                             {item.status}
                         </Text>
+                        </TouchableOpacity>: <Text>Loading</Text>}
                     </View>
                 )}
                 ListEmptyComponent={
                     <Text style={styles.emptyText}>No students found in roster.</Text>
                 }
             />
+            <View style={styles.footerContainer}>
+                <Text style={styles.footer}>Click the PRESENT or ABSENT to update them</Text>
+            </View>
         </View>
     );
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
@@ -102,5 +135,25 @@ const styles = StyleSheet.create({
         marginTop: 20,
         color: '#888',
         fontStyle: 'italic'
+    },
+    footer: {
+        fontWeight: "700", 
+        color: "#555", 
+    },
+    footerContainer: {
+        position: "absolute",
+        bottom: 0, 
+        left: 0,   
+        right: 0,   
+        zIndex: 10,
+        backgroundColor: "white",
+        alignItems: "center",
+        paddingVertical: 16, 
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 5,
+        height: 100
     }
 });

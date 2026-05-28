@@ -9,7 +9,7 @@ export const announcementTime = (date) => {
     return format(dateObj, "hh:mm a, dd MMM");
 };
 
-export const classDate = (date) => {
+export const normalDate = (date) => {
     return format(new Date(date), "dd-MM-yyyy")
 }
 
@@ -17,6 +17,6 @@ export const updateMarkedDate = (date) => {
     return format(new Date(date), "yyyy-MM-dd")
 }
 
-export const sessionDateAndTime = (date) => {
-    return format(new Date(date), "dd-MM-yyyy, hh a")
+export const normalTime = (date) => {
+    return format(new Date(date), "hh a")
 }

@@ -5,7 +5,6 @@ export default function TeacherLayout() {
     <Stack>
       <Stack.Screen name="TeacherDashboard" options={{ headerShown: true, title: 'Dashboard' }} />
       <Stack.Screen name="(classtabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="(viewAttendance)" options={{ headerShown: false }} />
     </Stack>
   );
 }
