@@ -80,7 +80,10 @@ export default function ViewAttendancePerStudent() {
                 current_status: current_status,
                 new_status: new_status,
             })
-            if (responce.message === "Attendance successfully updated.") refetchAttendance()
+            if (responce.message === "Attendance successfully updated.") {
+                refetchAttendance();
+                Alert.alert("Success", responce.message);
+            } else throw new Error;
         }catch (error){
             Alert.alert("Failed", "Could not Update Attendance. Try again!")
             console.log(error)

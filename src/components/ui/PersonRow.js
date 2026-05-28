@@ -25,7 +25,7 @@ export function PersonRowWithoutAction({ item, isTeacher }) {
   );
 }
 
-export function PersonRowWithAction({ item, onPressCheckAttendance }) {
+export function PersonRowWithAction({ item, onPressCheckAttendance, onPressDelete }) {
   // Temporary functions for your click actions
 
 
@@ -38,7 +38,7 @@ export function PersonRowWithAction({ item, onPressCheckAttendance }) {
     if (value === '1') {
       onPressCheckAttendance(item.student_id);
     } else if (value === '2') {
-      handleDelete(item);
+      onPressDelete(item.student_id);
     }
   };
 

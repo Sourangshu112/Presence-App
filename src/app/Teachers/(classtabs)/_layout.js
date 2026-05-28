@@ -39,6 +39,15 @@ export default function TabLayout() {
       }
   }
 
+  const refetchClassroom = async () => {
+    try{
+        const classroomData = await getclassRoster(classroomDetails.id);
+        setClassroomData(classroomData);
+      } catch (error) {
+        Alert.alert("Failed", "Could not load Students, something went wrong");
+      }
+  }
+
   useEffect(() => {
     const fetchdata = async () => {
       setLoading(true);
@@ -56,14 +65,12 @@ export default function TabLayout() {
         Alert.alert("Failed", "Could not load announcements, something went wrong");
       }
       try{
-        const classroomData = await getclassRoster(classroomDetails.id);
-        setClassroomData(classroomData);
-      } catch (error) {
-        Alert.alert("Failed", "Could not load Students, something went wrong");
+        refetchClassroom()
+      } catch {
       }
       try {
         refetchAttendance();
-      } catch (error) {
+      } catch {
       } finally{
           setLoading(false)
         }
@@ -74,7 +81,7 @@ export default function TabLayout() {
 
 
   return (
-    <DataContext.Provider value={{classroomDetails, announcements, setAnnouncements, classroomData, attendanceOverview, refetchAttendance}}>
+    <DataContext.Provider value={{classroomDetails, announcements, setAnnouncements, classroomData, attendanceOverview, refetchClassroom, refetchAttendance}}>
       <Tabs 
       initialRouteName="Home"
       screenOptions={{header: () => <SubjectBanner subject={classroomHeader} />}}

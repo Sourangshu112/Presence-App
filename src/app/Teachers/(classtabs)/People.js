@@ -1,15 +1,18 @@
 // src/app/(teacher)/(classtabs)/People.js
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, SectionList, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { DataContext } from './_layout';
 import { PersonRowWithAction, PersonRowWithoutAction } from '@/components/ui/PersonRow';
 import { useRouter } from 'expo-router';
+import { useClassroomDataApi } from '@/api/classroomData.api';
+import LoadingScreen from '@/components/LoadingScreen';
 
 export default function TeacherPeopleScreen() {
   const router = useRouter()
-  const {classroomData} = useContext(DataContext);
-  const {attendanceOverview} = useContext(DataContext);
+  const {classroomData, attendanceOverview, refetchClassroom, refetchAttendance} = useContext(DataContext);
+  const {removeStudent} = useClassroomDataApi();
+  const [loading, setLoading] = useState(false)
   
   const handleAddStudent = () => {
     Alert.alert("Invite Student", "Open modal to add student email or send invite link.");
@@ -21,8 +24,25 @@ export default function TeacherPeopleScreen() {
       params: {
           stuId: student_id
       }
-  })
+    })
   };
+
+  const handleDelete = async (student_id) => {
+    try{
+      setLoading(true);
+      const responce = await removeStudent(classroomData.classroom_id, student_id);
+      if (responce.message === "Successfully removed from the class."){
+        refetchClassroom();
+        refetchAttendance();
+        Alert.alert("Success",responce.message);
+      }
+      else throw new Error;
+    } catch (error){
+      Alert.alert("Failed", "Failed to remove Student");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -43,7 +63,7 @@ export default function TeacherPeopleScreen() {
             <View style={styles.actionHeaderRight}>
             {/* Utilize the total_students field from your payload */}
             <Text style={styles.studentCount}>
-              {classroomData?.total_students || data.length} students
+              {classroomData?.total_students} students
             </Text>
             <TouchableOpacity onPress={handleAddStudent} style={styles.addIcon}>
               <Ionicons name="person-add" size={22} color="#4A90E2" />
@@ -52,10 +72,11 @@ export default function TeacherPeopleScreen() {
         </View>
         <View style={styles.divider} />
         <ScrollView>
-        {
+        { !(loading) ? 
           classroomData?.students && classroomData.students.map((student)=>(
-            <PersonRowWithAction key={student.student_id} item={student} onPressCheckAttendance={handleCheckAttendance} />
+            <PersonRowWithAction key={student.student_id} item={student} onPressCheckAttendance={handleCheckAttendance} onPressDelete={handleDelete} />
           ))
+          : <LoadingScreen />
         }
         </ScrollView>
       </View>
