@@ -8,7 +8,7 @@ import { DataContext } from "./_layout";
 
 export default function ViewAttendancePerSession() {
     const { sId, date } = useLocalSearchParams();
-    const {attendanceOverview, refetchAttendance} = useContext(DataContext);
+    const {attendanceOverview, fetchAttendance} = useContext(DataContext);
     const {patchAttendance} = useAttendanceApi()
     const [loading, setLoading] = useState(false);
     
@@ -39,7 +39,7 @@ export default function ViewAttendancePerSession() {
                 new_status: new_status,
             })
         if (responce.message === "Attendance successfully updated.") {
-            refetchAttendance();
+            fetchAttendance();
             Alert.alert("Success", responce.message);
         } else throw new Error;
         }catch (error){

@@ -9,7 +9,7 @@ import { useAttendanceApi } from "@/api/attendance.api";
 
 export default function ViewAttendancePerStudent() {
     const {stuId} = useLocalSearchParams();
-    const {attendanceOverview, refetchAttendance} = useContext(DataContext);
+    const {attendanceOverview, fetchAttendance} = useContext(DataContext);
     const {patchAttendance} = useAttendanceApi()
     const [loading, setLoading] = useState(false);
 
@@ -81,7 +81,7 @@ export default function ViewAttendancePerStudent() {
                 new_status: new_status,
             })
             if (responce.message === "Attendance successfully updated.") {
-                refetchAttendance();
+                fetchAttendance();
                 Alert.alert("Success", responce.message);
             } else throw new Error;
         }catch (error){

@@ -1,6 +1,6 @@
 // src/components/PersonRow.js
 import React, {useState, useRef} from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Alert } from 'react-native';
 import UserAvatar from './Avatar';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -38,7 +38,14 @@ export function PersonRowWithAction({ item, onPressCheckAttendance, onPressDelet
     if (value === '1') {
       onPressCheckAttendance(item.student_id);
     } else if (value === '2') {
-      onPressDelete(item.student_id);
+      Alert.alert(
+        "Proceed",
+        `Are you sure you want to remove ${item.name.split(" ", 1)}`,
+        [
+          { text: "No", style: "cancel" },
+          { text: "Yes", onPress: () => onPressDelete(item.student_id)}
+        ]
+      )
     }
   };
 

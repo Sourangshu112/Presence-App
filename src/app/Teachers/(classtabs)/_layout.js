@@ -2,6 +2,7 @@ import { createContext, useEffect, useState } from 'react';
 import { Stack, Tabs, useRouter, useLocalSearchParams } from 'expo-router';
 import { Alert, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AntDesign from '@expo/vector-icons/AntDesign';
 import SubjectBanner from '@/components/ui/SubjectBanner';
 import { useClassroomDataApi } from '@/api/classroomData.api';
 import { normalDate } from '@/utils/dateTime';
@@ -30,7 +31,7 @@ export default function TabLayout() {
   const [attendanceOverview, setAttendanceOverview] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const refetchAttendance = async () => {
+  const fetchAttendance = async () => {
     try {
         const attendanceOverviewData = await getAttendanceOverview(classroomDetails.id);
         setAttendanceOverview(attendanceOverviewData);
@@ -39,7 +40,7 @@ export default function TabLayout() {
       }
   }
 
-  const refetchClassroom = async () => {
+  const fetchClassroom = async () => {
     try{
         const classroomData = await getclassRoster(classroomDetails.id);
         setClassroomData(classroomData);
@@ -48,30 +49,25 @@ export default function TabLayout() {
       }
   }
 
-  useEffect(() => {
-    const fetchdata = async () => {
-      setLoading(true);
-      /*const [announcementRes, attendanceRes, 
-        peopleRes, markAttendanceRes] = await Promise.allSettled(
-          fetch(),
-          fetch(),
-          fetch(),
-          fetch()
-        )*/
-      try {
+  const fetchAnnouncement = async () => {
+    try {
         const announcementData = await getAnnouncements(classroomDetails.id);
         setAnnouncements(announcementData.announcements);
       } catch (error) {
         Alert.alert("Failed", "Could not load announcements, something went wrong");
       }
-      try{
-        refetchClassroom()
-      } catch {
-      }
+  }
+
+  useEffect(() => {
+    const fetchdata = async () => {
+      setLoading(true);
       try {
-        refetchAttendance();
+        fetchAnnouncement();
+        fetchClassroom();
+        fetchAttendance();
       } catch {
-      } finally{
+
+      }finally{
           setLoading(false)
         }
 
@@ -81,7 +77,7 @@ export default function TabLayout() {
 
 
   return (
-    <DataContext.Provider value={{classroomDetails, announcements, setAnnouncements, classroomData, attendanceOverview, refetchClassroom, refetchAttendance}}>
+    <DataContext.Provider value={{classroomDetails, announcements, setAnnouncements, classroomData, attendanceOverview, fetchClassroom, fetchAttendance}}>
       <Tabs 
       initialRouteName="Home"
       screenOptions={{header: () => <SubjectBanner subject={classroomHeader} />}}
@@ -103,6 +99,12 @@ export default function TabLayout() {
             title: "Sessions",    
             }} />
 
+          <Tabs.Screen name="markAttendance" options={
+            { headerShown: true, 
+            tabBarIcon: ({ color, focused }) => <AntDesign name={focused ? "usergroup-add":"usergroup-add"} size={24} color={color} />,
+            title: "Attendance"  
+            }} />
+
           <Tabs.Screen 
             name="viewAttendancePerSession" 
             options={{ 
@@ -120,11 +122,7 @@ export default function TabLayout() {
               tabBarStyle: { display: 'none' }
             }} 
           />
-          {/* 
-          <Tabs.Screen name="MarkAttendance" options={
-            { headerShown: false, 
-            tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "camera":"camera-outline"} size={24} color={color} />  
-            }} /> */}
+          
       </Tabs>
     </DataContext.Provider>
   );

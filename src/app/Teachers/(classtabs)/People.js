@@ -10,7 +10,7 @@ import LoadingScreen from '@/components/LoadingScreen';
 
 export default function TeacherPeopleScreen() {
   const router = useRouter()
-  const {classroomData, attendanceOverview, refetchClassroom, refetchAttendance} = useContext(DataContext);
+  const {classroomData, attendanceOverview, fetchClassroom, fetchAttendance} = useContext(DataContext);
   const {removeStudent} = useClassroomDataApi();
   const [loading, setLoading] = useState(false)
   
@@ -32,8 +32,8 @@ export default function TeacherPeopleScreen() {
       setLoading(true);
       const responce = await removeStudent(classroomData.classroom_id, student_id);
       if (responce.message === "Successfully removed from the class."){
-        refetchClassroom();
-        refetchAttendance();
+        fetchClassroom();
+        fetchAttendance();
         Alert.alert("Success",responce.message);
       }
       else throw new Error;
