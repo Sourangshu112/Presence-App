@@ -13,9 +13,7 @@ export const useClassroomDataApi = () => {
             }),
         getclassRoster: (id) => 
             fetchApi(`/classroom_data/${id}/roster/`, {method: 'GET'}),
-        getAttendanceOverview: (id) => 
-            fetchApi(`/attendance/${id}/overview/`, {method: 'GET'}),
         removeStudent: (cId,sId) => 
-            fetchApi(`/classroom_data/${cId}/remove/${sId}/`, {method: 'DELETE'})
+            fetchApi(`/classroom_data/${cId}/remove/${sId}/`, {method: 'DELETE'}),
     }
 }

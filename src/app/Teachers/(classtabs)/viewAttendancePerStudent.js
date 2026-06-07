@@ -106,7 +106,6 @@ export default function ViewAttendancePerStudent() {
             >
                 {/* Pressable overlay to close the modal when tapping outside */}
                 <Pressable style={styles.modalOverlay} onPress={closeModal}>
-                    
                     <Pressable style={styles.modalContent} onPress={(e) => e.stopPropagation()}>
                         
                         <View style={styles.modalHeader}>

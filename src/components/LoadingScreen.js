@@ -10,3 +10,10 @@ export default function LoadingScreen(){
     )
 }
 
+export function LoadingScreenSmall() {
+    return (
+        <View style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
+            <DotIndicator color={"#1976D2"} size={8} />
+        </View>
+    )
+}

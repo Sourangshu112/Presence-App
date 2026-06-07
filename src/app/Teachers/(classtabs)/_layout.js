@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import SubjectBanner from '@/components/ui/SubjectBanner';
 import { useClassroomDataApi } from '@/api/classroomData.api';
+import { useAttendanceApi } from '@/api/attendance.api';
 import { normalDate } from '@/utils/dateTime';
 
 
@@ -15,7 +16,8 @@ export default function TabLayout() {
   const router = useRouter();
   const color = "black";
   const classroomDetails = useLocalSearchParams();
-  const {getAnnouncements, getclassRoster, getAttendanceOverview} = useClassroomDataApi();
+  const {getAnnouncements, getclassRoster} = useClassroomDataApi();
+  const {getAttendanceOverview} = useAttendanceApi();
   
   const classroomHeader = {
   id: classroomDetails.id,
