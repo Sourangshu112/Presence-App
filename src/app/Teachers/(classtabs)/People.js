@@ -7,15 +7,16 @@ import { PersonRowWithAction, PersonRowWithoutAction } from '@/components/ui/Per
 import { useRouter } from 'expo-router';
 import { useClassroomDataApi } from '@/api/classroomData.api';
 import LoadingScreen from '@/components/LoadingScreen';
+import ErrorScreen from '@/components/ErrorScreen';
 
 export default function TeacherPeopleScreen() {
   const router = useRouter()
-  const {classroomData, attendanceOverview, fetchClassroom, fetchAttendance} = useContext(DataContext);
+  const {classroomData, attendanceOverview, fetchClassroom, fetchAttendance, loading, error} = useContext(DataContext);
   const {removeStudent} = useClassroomDataApi();
-  const [loading, setLoading] = useState(false)
+  const [loadingLocal, setLoadingLocal] = useState(false)
   
   const handleAddStudent = () => {
-    Alert.alert("Invite Student", "Open modal to add student email or send invite link.");
+    Alert.alert("Invite Student", "Share the Join Code to add student");
   };
 
   const handleCheckAttendance = (student_id) => {
@@ -29,7 +30,7 @@ export default function TeacherPeopleScreen() {
 
   const handleDelete = async (student_id) => {
     try{
-      setLoading(true);
+      setLoadingLocal(true);
       const responce = await removeStudent(classroomData.classroom_id, student_id);
       if (responce.message === "Successfully removed from the class."){
         fetchClassroom();
@@ -40,9 +41,17 @@ export default function TeacherPeopleScreen() {
     } catch (error){
       Alert.alert("Failed", "Failed to remove Student");
     } finally {
-      setLoading(false);
+      setLoadingLocal(false);
     }
   }
+
+  if (loading) return <LoadingScreen />
+
+  if (error.fetchClassroom) return(
+    <View style={{ flex: 1, backgroundColor: '#F8F9FA' }}>
+        <ErrorScreen onRetry={fetchClassroom} />
+      </View>
+  )
 
   return (
     <View style={styles.container}>
@@ -72,7 +81,7 @@ export default function TeacherPeopleScreen() {
         </View>
         <View style={styles.divider} />
         <ScrollView>
-        { !(loading) ? 
+        { !(loadingLocal) ? 
           classroomData?.students && classroomData.students.map((student)=>(
             <PersonRowWithAction key={student.student_id} item={student} onPressCheckAttendance={handleCheckAttendance} onPressDelete={handleDelete} />
           ))

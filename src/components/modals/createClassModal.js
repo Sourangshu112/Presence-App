@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { 
   View, Text, TextInput, TouchableOpacity, 
-  Modal, StyleSheet, Alert 
+  Modal, StyleSheet, Alert, 
+  KeyboardAvoidingView, Platform
 } from 'react-native';
 import LoadingScreen from '../LoadingScreen';
 import ErrorText from '../ui/ErrorText';
@@ -37,6 +38,10 @@ export default function CreateClassModal({ visible, onClose, onSuccess }) {
       visible={visible}
       onRequestClose={onClose}
     >
+      <KeyboardAvoidingView
+      style={{ flex: 1 }} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>Create a New Class</Text>
@@ -80,9 +85,9 @@ export default function CreateClassModal({ visible, onClose, onSuccess }) {
               )}
             </TouchableOpacity>
           </View>
-
         </View>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

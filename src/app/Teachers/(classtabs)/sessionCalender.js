@@ -1,13 +1,15 @@
 import React, { useState, useContext, useMemo } from "react";
-import { View, Text, StyleSheet, Modal, TouchableOpacity, Pressable, FlatList } from "react-native";
+import { View, Text, StyleSheet, Modal, TouchableOpacity, Pressable, FlatList, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import CalendarPage from "@/components/calendarPage";
 import { updateMarkedDate, normalDate, normalTime } from "@/utils/dateTime";
-import { DataContext } from "./_layout";
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { attendanceToExcel } from "@/utils/exportAttendance";
+import { DataContext } from "./_layout";import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import LoadingScreen from '@/components/LoadingScreen';
+import ErrorScreen from '@/components/ErrorScreen';
 
 export default function SetCalender() {
-    const { attendanceOverview } = useContext(DataContext);
+    const { attendanceOverview, loading, error, fetchAttendance } = useContext(DataContext);
     const router = useRouter();
 
     // Modal States
@@ -62,9 +64,36 @@ export default function SetCalender() {
         });
     };
 
+//     const handleExport = async () => {
+//     if (!attendanceOverview?.sessions?.length) {
+//         Alert.alert("Export Failed", "No attendance data available to export.");
+//         return;
+//     }
+
+//     try {
+//         await attendanceToExcel(attendanceOverview);
+//         Alert.alert("Success", "Attendance register downloaded successfully!");
+//     } catch (err) {
+//         console.log(err)
+//         Alert.alert("Export Failed", "An error occurred while generating the Excel file.");
+//     }
+//  };
+
+    if (loading) return <LoadingScreen />
+
+    if (error.fetchClassroom) return (
+        <View style={{ flex: 1, backgroundColor: '#F8F9FA' }}>
+            <ErrorScreen onRetry={fetchAnnouncement} />
+        </View>
+    )
+
     return (
         <View style={styles.container}>
             <CalendarPage markedDates={dates} onPress={handleDayPress} />
+            {/*<TouchableOpacity style={styles.exportButton} onPress={handleExport}>
+                <MaterialIcons name="file-download" size={20} color="#ffffff" />
+                <Text style={styles.exportButtonText}>Export Register</Text>
+            </TouchableOpacity>*/}
 
             {/* Bottom Sheet Modal */}
             <Modal
@@ -181,5 +210,22 @@ const styles = StyleSheet.create({
         marginTop: 20,
         color: '#888',
         fontStyle: 'italic'
-    }
+    },
+    exportButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#2153eb',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginHorizontal: 16,
+    marginTop: 12,
+    gap: 8,
+    },
+    exportButtonText: {
+        color: '#ffffff',
+        fontSize: 15,
+        fontWeight: '600',
+    },
 });

@@ -1,12 +1,14 @@
 import React, { useState, useMemo, useContext } from "react";
-import { View, Text, StyleSheet, Modal, TouchableOpacity, Pressable } from "react-native";
+import { View, Text, StyleSheet, Modal, TouchableOpacity, Pressable, ScrollView } from "react-native";
 import { DataContext } from "./_layout";
 import CalendarPage from "@/components/calendarPage";
 import { updateMarkedDate, normalDate } from "@/utils/dateTime";
+import LoadingScreen from "@/components/LoadingScreen";
+import ErrorScreen from "@/components/ErrorScreen";
 
 export default function CheckAttendance() {
     // Pulling the flat array of attendance data from context
-    const { attendanceData } = useContext(DataContext);
+    const { attendanceData, loading, error, fetchAttendance } = useContext(DataContext);
     
     const [selectedDate, setSelectedDate] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
@@ -58,9 +60,18 @@ export default function CheckAttendance() {
         }));
     }, [selectedDate, attendanceData]);
 
+    if (loading) return <LoadingScreen />
+    
+    if (error.fetchAttendance) 
+        return (
+        <View style={{ flex: 1, backgroundColor: '#F8F9FA' }}>
+          <ErrorScreen onRetry={fetchAttendance} />
+        </View>
+    );
+
     // 4. Render UI
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
                         
             <CalendarPage markedDates={formattedCalendarData} onPress={handleDayPress} />
             
@@ -103,7 +114,7 @@ export default function CheckAttendance() {
                     </Pressable>
                 </Pressable>
             </Modal>
-        </View>
+        </ScrollView>
     );
 }
 

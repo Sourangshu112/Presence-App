@@ -26,6 +26,7 @@ export default function Index() {
         }
       } catch (error) {
         console.log("Session verification failed:", error);
+        console.log("Session verification failed:", JSON.stringify(error, null, 2));
       }
     };
 

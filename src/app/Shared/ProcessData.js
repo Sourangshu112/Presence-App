@@ -22,11 +22,11 @@ export default function Process() {
           });
           await addStudentData(formData);
           Alert.alert("Success", "You have been registered successfully");
-          router.replace('/Students/Dashboard');
+          router.replace('/Students/StudentDashboard');
         } else if (selectedRole === "TEACHER") {
           await addTeacherData(formData);
           Alert.alert("Success", "You have been registered successfully");
-          router.replace('/Teachers/Dashboard');
+          router.replace('/Teachers/TeacherDashboard');
         }
       } catch (err) {
         Alert.alert("Registration Failed", err.error || "An error occurred");

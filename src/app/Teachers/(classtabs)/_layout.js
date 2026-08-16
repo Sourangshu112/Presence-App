@@ -31,32 +31,36 @@ export default function TabLayout() {
   const [announcements, setAnnouncements] = useState(null);
   const [classroomData, setClassroomData] = useState(null);
   const [attendanceOverview, setAttendanceOverview] = useState(null);
+  const [error, setError] = useState({fetchClassroom: false, fetchAnnouncement: false, fetchAttendance: false});
   const [loading, setLoading] = useState(true);
 
   const fetchAttendance = async () => {
     try {
+        setError(preError => ({...preError, fetchAttendance: false}))
         const attendanceOverviewData = await getAttendanceOverview(classroomDetails.id);
         setAttendanceOverview(attendanceOverviewData);
       } catch (error) {
-        Alert.alert("Failed", "Could not load Students Attendance, something went wrong");
+        setError(preError => ({...preError, fetchAttendance: true}))
       }
   }
 
   const fetchClassroom = async () => {
     try{
+      setError(preError => ({...preError, fetchClassroom: false}))
         const classroomData = await getclassRoster(classroomDetails.id);
         setClassroomData(classroomData);
       } catch (error) {
-        Alert.alert("Failed", "Could not load Students, something went wrong");
+        setError(preError => ({...preError, fetchClassroom: true}))
       }
   }
 
   const fetchAnnouncement = async () => {
     try {
+        setError(preError => ({...preError, fetchAnnouncement: false}))
         const announcementData = await getAnnouncements(classroomDetails.id);
         setAnnouncements(announcementData.announcements);
       } catch (error) {
-        Alert.alert("Failed", "Could not load announcements, something went wrong");
+        setError(preError => ({...preError, fetchAnnouncement: true}))
       }
   }
 
@@ -79,7 +83,17 @@ export default function TabLayout() {
 
 
   return (
-    <DataContext.Provider value={{classroomDetails, announcements, setAnnouncements, classroomData, attendanceOverview, fetchClassroom, fetchAttendance}}>
+    <DataContext.Provider value={{
+      classroomDetails, 
+      announcements, 
+      setAnnouncements, 
+      classroomData, 
+      attendanceOverview, 
+      fetchClassroom, 
+      fetchAttendance,
+      loading,
+      error
+      }}>
       <Tabs 
       initialRouteName="Home"
       screenOptions={{header: () => <SubjectBanner subject={classroomHeader} />}}
@@ -110,7 +124,7 @@ export default function TabLayout() {
           <Tabs.Screen 
             name="viewAttendancePerSession" 
             options={{ 
-              href: null, // This completely hides it from the bottom tab bar!
+              href: null,
               headerShown: true ,
               tabBarStyle: { display: 'none' }
             }} 

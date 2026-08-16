@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Platform, Dimensions, } from 'react-native';
-import { Camera, useCameraDevice, useFrameProcessor, runAsync, useCameraFormat, } from 'react-native-vision-camera';
+import { Camera, useCameraDevice, useFrameProcessor, runAsync, useCameraFormat, useCameraPermission } from 'react-native-vision-camera';
 import { useFaceDetector } from 'react-native-vision-camera-face-detector';
 import { Worklets } from 'react-native-worklets-core';
-import { useCameraPermission } from '../hooks/useCameraPermission';
 import { useIsFocused } from '@react-navigation/native';
+import { LoadingScreenSmall } from './LoadingScreen';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -16,11 +16,22 @@ const CIRCLE_CENTER_Y = SCREEN_HEIGHT / 2;
 
 export default function CameraScreen({onVerify}) {
   const isFocused = useIsFocused();
-  const { hasPermission, isLoading } = useCameraPermission();
+  const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice('front');
   const format = useCameraFormat(device, [
     { fps: 15, videoResolution: '720p' }
   ]);
+  const [loading, setLoading] = useState(false)
+  
+  useEffect(() => {
+    async function handleCameraAccess() {
+      if (hasPermission) return;
+      setLoading(true);
+      await requestPermission(); 
+      setLoading(false);
+  }
+  handleCameraAccess();
+    }, [hasPermission, requestPermission]);
 
   const cameraRef = useRef(null);
   const [faceVerified, setFaceVerified] = useState(false);
@@ -31,6 +42,20 @@ export default function CameraScreen({onVerify}) {
   const eyesWereClosed = useRef(false);
   const hasBlinked = useRef(false);
   const captureTriggered = useRef(false);
+
+  useEffect(() => {
+    if (isFocused) {
+      // Reset all UI states
+      setFaceVerified(false);
+      setInstructionText('Position your face inside the circle');
+      setIsCapturing(false);
+
+      // Reset all liveness tracking refs
+      eyesWereClosed.current = false;
+      hasBlinked.current = false;
+      captureTriggered.current = false;
+    }
+  }, [isFocused]);
 
   const faceDetectionOptions = useRef({
     performanceMode: 'fast',
@@ -170,10 +195,10 @@ export default function CameraScreen({onVerify}) {
   );
 
   // --- Render Loading/Error States ---
-  if (isLoading) {
+  if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#6C63FF" />
+        <LoadingScreenSmall />
         <Text style={styles.loadingText}>Checking permissions...</Text>
       </View>
     );

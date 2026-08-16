@@ -12,7 +12,7 @@ export default function EmptyState({ role }) {
   );
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   emptyContainer: { alignItems: 'center', justifyContent: 'center', marginTop: 60 },
   emptyText: { fontSize: 18, fontWeight: '600', color: '#3c4043', marginBottom: 8 },
   emptySubText: { fontSize: 14, color: '#5f6368' },

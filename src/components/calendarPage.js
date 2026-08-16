@@ -61,7 +61,7 @@ const getMarkedDates = () => {
           <View style={[styles.dot, { backgroundColor: "red" }]} />
           <Text style={styles.legendText}>Absent : {markedDates.absent.length}</Text>
         </View>
-        <Text style={styles.percentage}>PERCENTAGE : {Math.round((markedDates.present.length/(markedDates.present.length+markedDates.absent.length))*100)} %</Text>
+        <Text style={styles.percentage}>PERCENTAGE : {Math.round((markedDates.present.length/(markedDates.present.length+markedDates.absent.length))*100) || "--"} %</Text>
       </View>
     )}
     </View>

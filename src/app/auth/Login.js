@@ -60,12 +60,6 @@ export default function LoginScreen() {
               color={GoogleSigninButton.Color.Light} 
               onPress={handleLoginPress}
             />
-            {/* Temporary button to view the site map... must be removed in production */}
-            <Button 
-              title="Open Sitemap (Debug)" 
-              color="purple"
-              onPress={() => router.push('/_sitemap')} 
-            />
           </View>
         </View>
 

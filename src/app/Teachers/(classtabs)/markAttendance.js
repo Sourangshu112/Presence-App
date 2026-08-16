@@ -19,10 +19,9 @@ export default function MarkAttendance() {
     return generatedBleToken;
   }
 
-  const {createSession, stopSession, fetchLiveAttendance,  updateAttendance} = useAttendanceApi()
-
   const navigation = useNavigation()
-  const { classroomData } = useContext(DataContext);
+  const {createSession, stopSession, fetchLiveAttendance,  updateAttendance} = useAttendanceApi()
+  const { classroomData, fetchAttendance } = useContext(DataContext);
   const students = classroomData?.students || []; 
   const classroomId = classroomData?.classroom_id || 'default_class_id';
 
@@ -61,7 +60,7 @@ export default function MarkAttendance() {
       }
 
       // Configure device identity
-      Peripheral.setDeviceName('Presence');
+      // Peripheral.setDeviceName('Presence');
       const p = new Peripheral();
       peripheralRef.current = p;
     };
@@ -79,6 +78,7 @@ export default function MarkAttendance() {
   // 2. Animation Values
   const headerTranslateY = useRef(new Animated.Value(0)).current;
   const listTranslateY = useRef(new Animated.Value(height)).current;
+  const footerTranslateY = useRef(new Animated.Value(300)).current;
 
   // 3. Start Attendance & Trigger Animations
   const handleStartAttendance = async () => {
@@ -89,7 +89,7 @@ export default function MarkAttendance() {
       setCurrentBleToken(token);
 
       const sessionCreateResponce = await createSession(classroomId,token)
-      if( sessionCreateResponce.message === "success")
+      if(sessionCreateResponce.message === "success")
         sessionIdRef.current = sessionCreateResponce.session.session_id;
       else
         throw new Error();
@@ -104,7 +104,6 @@ export default function MarkAttendance() {
         await peripheralRef.current.updateValue(sessionIdRef.current,CHARACTERISTIC_UUID, Buffer.from(token));
         await peripheralRef.current.startAdvertising();
         console.log("Broadcasting BLE token:", token);
-        Alert.alert("Success", "Successfully stated attendance session");
       }
       else 
         throw new Error();
@@ -135,43 +134,91 @@ export default function MarkAttendance() {
       setIsDisabled(false);
   };
 
-  const handleStopAttendance = async () => {
+const handleStopAttendance = async () => {
     try { 
       setIsDisabled(true);
-      setIsMarking(false); 
-      const stopSessionResponce = await stopSession(classroomId, sessionIdRef.current)
-      if (!stopSessionResponce.message === "success")
-        throw new Error();
+      setIsMarking(false); // This automatically stops your useEffect polling
+
+      // Stop BLE broadcast but DO NOT close the session on the backend yet
       if (peripheralRef.current) {
           await peripheralRef.current.stopAdvertising();
           console.log("Stopped BLE broadcast");
-        }
-      else
-        throw new Error();
+      }
     } 
     catch (error){
       setIsDisabled(false);
       setIsMarking(true);
-      Alert.alert("Failed", "Could not stop session please try again");
-      return
+      Alert.alert("Failed", "Could not stop broadcast. Please try again.");
+      return;
     }
 
-    navigation.setOptions({tabBarStyle: { display: 'block' }})
+    // Push header further out, slide list up slightly, bring footer to natural position
     Animated.parallel([
-      
       Animated.timing(headerTranslateY, {
-        toValue: 0, 
+        toValue: -500, 
         duration: 600,
         useNativeDriver: true,
       }),
-      
       Animated.timing(listTranslateY, {
-        toValue: height,
+        toValue: -250, // Move list up so the footer doesn't overlap the bottom items
         duration: 600,
         useNativeDriver: true,
+      }),
+      Animated.timing(footerTranslateY, {
+        toValue: 50, // Slide into view at bottom: 0
+        duration: 500,
+        useNativeDriver: true
       })
     ]).start();
+    
     setIsDisabled(false);
+  };
+
+  const handleConfirmAttendance = async () => {
+    try {
+      setIsDisabled(true);
+      
+      // Now we actually close the session on the backend
+      const stopSessionResponse = await stopSession(classroomId, sessionIdRef.current);
+      if (stopSessionResponse.message !== "success") {
+        throw new Error();
+      }
+
+      Alert.alert("Success", "Attendance session confirmed and saved.");
+
+      // Restore Tab Bar ('flex' is the standard display property for React Navigation)
+      navigation.setOptions({tabBarStyle: { display: 'flex' }});
+
+      // Animate everything back to the initial starting positions
+      Animated.parallel([
+        Animated.timing(headerTranslateY, {
+          toValue: 0, 
+          duration: 600,
+          useNativeDriver: true,
+        }),
+        Animated.timing(listTranslateY, {
+          toValue: height, // Push list back down off-screen
+          duration: 600,
+          useNativeDriver: true,
+        }),
+        Animated.timing(footerTranslateY, {
+          toValue: 300, // Push footer back down off-screen
+          duration: 500,
+          useNativeDriver: true
+        })
+      ]).start();
+
+      // Reset the current token and state if necessary
+      setCurrentBleToken('');
+
+    } catch (error) {
+      Alert.alert("Failed", "Could not confirm session. Please try again.");
+      console.log(error);
+    } finally {
+      Alert.alert("Success", "Successfully completed attendance session");
+      fetchAttendance();
+      setIsDisabled(false);
+    }
   };
 
   const handlePress = () => {
@@ -228,9 +275,8 @@ export default function MarkAttendance() {
         } catch (error) {
           console.error("Polling failed:", error);
         }
-        console.log("Trying to fetch ", count)
         count++;
-      }, 3000); 
+      }, 5000); 
     }
 
     return () => {
@@ -282,6 +328,20 @@ export default function MarkAttendance() {
             />
           )}
         />
+      </Animated.View>
+
+      <Animated.View style={[
+        styles.footerContainer,
+        { transform: [{ translateY: footerTranslateY }] }
+        ]}>
+          <Text style={styles.footer}>The broadcast is turned off but you can still check and update before comfimring</Text>
+          <TouchableOpacity 
+          style={[styles.bigButton, {backgroundColor: "#1976D2"}]}
+          onPress={handleConfirmAttendance}
+          disabled={isDisabled}
+          >
+            <Text style={styles.bigButtonText}>Confirm</Text>
+          </TouchableOpacity>
       </Animated.View>
       
     </View>
@@ -343,10 +403,7 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingHorizontal: 15,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -5 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 10,
+    zIndex: 10
   },
   listHeader: {
     flexDirection: 'row',
@@ -360,4 +417,25 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
+  footer: {
+        padding: 15,
+        fontWeight: "700", 
+        color: "#555", 
+    },
+  footerContainer: {
+      position: "absolute",
+      bottom: 0, 
+      left: 0,   
+      right: 0,   
+      zIndex: 10,
+      backgroundColor: "white",
+      alignItems: "center",
+      paddingVertical: 16, 
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: -2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 5,
+      height: 250
+  }
 });

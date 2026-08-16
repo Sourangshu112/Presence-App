@@ -4,7 +4,7 @@ import { View } from "react-native";
 
 export default function LoadingScreen(){
     return (
-        <View style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
+        <View style={{display: "flex", justifyContent: "center", alignItems: "center", flex: 1}}>
             <DotIndicator color={"#1976D2"} />
         </View>
     )
@@ -12,7 +12,7 @@ export default function LoadingScreen(){
 
 export function LoadingScreenSmall() {
     return (
-        <View style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
+        <View style={{display: "flex", justifyContent: "center", alignItems: "center", height: 100}}>
             <DotIndicator color={"#1976D2"} size={8} />
         </View>
     )

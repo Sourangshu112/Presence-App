@@ -6,6 +6,7 @@ export default function SharedLayout() {
       <Stack.Screen name="Details" options={{ headerShown: false, title: 'Details' }} />
       <Stack.Screen name="AddFaceData" options={{ headerShown: false, title: 'Adding Face'}} />
       <Stack.Screen name="ProcessData" options={{ headerShown: false, title: 'Processing'}} />
+      <Stack.Screen name="ServerError" options={{ headerShown: false, title: 'Error'}} />
     </Stack>
   );
 }

@@ -6,7 +6,7 @@ import { LoadingScreenSmall } from "../LoadingScreen";
 const dropdownData = [
   { label: 'Present', value: 'PRESENT' },
   { label: 'Absent', value: 'ABSENT' },
-  { label: 'Unmarked', value: 'UNMARKED' }
+  // { label: 'Unmarked', value: 'UNMARKED' }
   // { label: 'Excused', value: 'Excused' }
 ];
 
@@ -35,6 +35,7 @@ const StudentRow = ({ student, status, onUpdateStatus, updating }) => {
           labelField="label"
           valueField="value"
           value={status}
+          placeholder="UNMARKED"
           onChange={(item) => {
             onUpdateStatus(student.student_id, item.value);
           }}
@@ -66,7 +67,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dropdownContainer: {
-    width: 130,
+    width: 150,
   },
   dropdownButton: {
     borderWidth: 1.5,

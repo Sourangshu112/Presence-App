@@ -29,5 +29,15 @@ export const useAttendanceApi = () => {
             fetchApi(`/attendance/${id}/overview/`, {method: 'GET'}),
         getAttendanceData: (classId) => 
             fetchApi(`/attendance/${classId}/my-report/`, {method: "GET"}),
+
+        getLiveAttendanceSession: (classId) => 
+            fetchApi(`/attendance/${classId}/active-session`, {method: "GET"}),
+
+        verifyAndMarkAttendance: (formData) => 
+            fetchApi("/attendance/verify/", {
+                method: "POST",
+                isFormData: true,
+                body: formData
+            }),
     }
 }

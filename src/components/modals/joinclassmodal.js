@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { 
   View, Text, TextInput, TouchableOpacity, 
-  Modal, ActivityIndicator, StyleSheet, Alert 
+  Modal, ActivityIndicator, StyleSheet, Alert,
+  KeyboardAvoidingView, Platform
 } from 'react-native';
 import LoadingScreen from '../LoadingScreen';
 import ErrorText from '../ui/ErrorText';
@@ -39,6 +40,10 @@ export default function JoinClassModal({ visible, onClose, onSuccess }) {
       onRequestClose={onClose}
     >
       {/* Dark overlay background */}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }} 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
       <View style={styles.overlay}>
         
         {/* The Modal Box */}
@@ -88,6 +93,7 @@ export default function JoinClassModal({ visible, onClose, onSuccess }) {
 
         </View>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

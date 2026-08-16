@@ -4,10 +4,23 @@ import { View, Text, StyleSheet, SectionList, TouchableOpacity, Alert, ScrollVie
 import { Ionicons } from '@expo/vector-icons';
 import { DataContext } from './_layout';
 import { PersonRowWithoutAction } from '@/components/ui/PersonRow';
+import ErrorScreen from '@/components/ErrorScreen';
+import LoadingScreen from '@/components/LoadingScreen';
 
 
 export default  function StudentPeopleScreen () {
-  const {classroomData} = useContext(DataContext);
+  const {classroomData, loading, error, fetchClassroom} = useContext(DataContext);
+
+  if (loading) return <LoadingScreen />
+
+  if (error.fetchClassroom) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#F8F9FA' }}>
+        <ErrorScreen onRetry={fetchClassroom} />
+      </View>
+    );
+  }
+
   return(
   <View style={styles.container}>
       <View style={styles.sectionHeaderContainer}>

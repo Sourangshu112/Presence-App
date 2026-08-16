@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
+import { Alert } from 'react-native'; 
 import { useApi } from '@/context/APIContext';
 
 export const useApiClient = () => {
@@ -10,12 +11,10 @@ export const useApiClient = () => {
     const { requireAuth = true, isFormData = false, ...fetchOptions } = options;
     const headers = { ...fetchOptions.headers };
 
-    // Automatically set JSON content type unless we are sending FormData (images)
     if (!isFormData) {
       headers['Content-Type'] = 'application/json';
     }
 
-    // Automatically fetch and inject Token
     if (requireAuth) {
       const token = await SecureStore.getItemAsync('access_token');
       if (!token) {
@@ -26,20 +25,17 @@ export const useApiClient = () => {
     }
 
     try {
-      // 1. Make the initial request using 'let' so we can overwrite it if we need to retry
       let response = await fetch(`${apiurl}${endpoint}`, {
         ...fetchOptions,
         headers,
       });
 
-      // 🔥 THE INTERCEPTOR: Catch the 401 Unauthorized BEFORE failing
+      // Catch the 401 Unauthorized BEFORE failing
       if (response.status === 401 && requireAuth) {
         const refreshToken = await SecureStore.getItemAsync('refresh_token');
 
         if (refreshToken) {
           try {
-            // Attempt to trade the refresh token for a new access token
-            // Note: Update this path if your Django url is under /auth/ (e.g., /auth/token/refresh/)
             const refreshResponse = await fetch(`${apiurl}/auth/token/refresh/`, { 
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -61,38 +57,55 @@ export const useApiClient = () => {
               throw new Error("Refresh token expired");
             }
           } catch (refreshError) {
-            // Absolute session failure. Boot them out.
             await SecureStore.deleteItemAsync('access_token');
             await SecureStore.deleteItemAsync('refresh_token');
             router.replace('/auth/Login');
             return Promise.reject({ status: 401, error: "Session completely expired" });
           }
         } else {
-          // No refresh token existed in storage in the first place
           await SecureStore.deleteItemAsync('access_token');
           router.replace('/auth/Login');
           return Promise.reject({ status: 401, error: "Session expired, no refresh token" });
         }
       }
 
-      const data = await response.json();
+      // Read response data
+      const data = await response.json().catch(() => ({})); // Added safe catch in case response isn't JSON
 
       if (!response.ok) {
-        // Global redirect if it's STILL 401/403 even after the refresh attempt
+        // Global redirect for auth failures
         if (response.status === 401 || response.status === 403) {
           await SecureStore.deleteItemAsync('access_token'); 
           await SecureStore.deleteItemAsync('refresh_token'); 
           router.replace('/auth/Login');
+        } 
+        // 🔥 GLOBAL SERVER ERROR HANDLER
+        else if (response.status >= 500) {
+          Alert.alert("Server Error", "Something went wrong on our end. Please try again later.");
+          router.push('/Shared/ServerError');
         }
-        // Reject so the component's catch() block triggers
+
         return Promise.reject({ status: response.status, ...data });
       }
 
       return data;
     } catch (error) {
+      // If we already rejected with a status above, just pass it down
       if (error.status) return Promise.reject(error);
       
-      console.error("FATAL API CLIENT ERROR:", error);
+      // console.error("FATAL API CLIENT ERROR:", error);
+
+      // 🔥 GLOBAL NETWORK ERROR HANDLER
+      // React Native's fetch throws a specific TypeError when there is no network connection or the server is dead
+      if (error.message === 'Network request failed') {
+        Alert.alert(
+          "Connection Error", 
+          "Could not connect to the server. Please check your internet connection and try again."
+        );
+        router.push('/Shared/ServerError');
+      } else {
+        Alert.alert("Error", "An unexpected error occurred.");
+      }
 
       return Promise.reject({ 
         status: 500, 
