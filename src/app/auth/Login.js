@@ -30,10 +30,14 @@ export default function LoginScreen() {
     else {
       console.log("failed",Data);
       setErrorHappened(true);
+      console.log("test 1");
+      router.replace('/Shared/ServerError');
+      console.log("test 3");
     }
-  } catch {
-    console.log("Failed ", error)
+  } catch (error) {
+    console.log("Failed", error)
     setErrorHappened(true);
+    router.replace('/Shared/ServerError');
   }
   };
 

@@ -26,7 +26,9 @@ export default function Index() {
         }
       } catch (error) {
         console.log("Session verification failed:", error);
-        console.log("Session verification failed:", JSON.stringify(error, null, 2));
+        console.log("test 2");
+        router.replace('/auth/Login');
+        console.log("test 4");
       }
     };
 

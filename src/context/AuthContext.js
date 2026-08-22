@@ -3,6 +3,7 @@ import { GoogleSignin, isSuccessResponse, isErrorWithCode, statusCodes } from '@
 import { Alert } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useAuthApi } from '@/api/auth.api';
+import ErrorScreen from '@/components/ErrorScreen';
 
 // 1. Create the Context
 export const AuthContext = createContext();
@@ -53,6 +54,8 @@ export const AuthProvider = ({ children }) => {
       setErrorHappened(true);
       Alert.alert("Failed", "Could not Connect to Google");
       return null;
+    } finally {
+      setIsLoading(false); 
     }
   };
 

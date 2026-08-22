@@ -10,7 +10,12 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#ffffff",
+      "dark": {
+      "image": "./assets/splash-icon-dark.png",
+      "backgroundColor": "#000000"
+    },
+    "imageWidth": 1024
     },
     "ios": {
       "supportsTablet": true,
@@ -21,6 +26,8 @@
     "android": {
       "package": "com.sourangshu616.PresenceApp",
       "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
         "android.permission.CAMERA",
         "BLUETOOTH",
         "BLUETOOTH_ADVERTISE",
