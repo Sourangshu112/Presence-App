@@ -3,7 +3,7 @@ import React, {createContext, useContext} from "react";
 export const ApiContext = createContext();
 
 export const ApiProvider = ({children}) => {
-    const apiurl = process.env.EXPO_PUBLIC_APIURL;
+    const apiurl = process.env.EXPO_PUBLIC_APIURL_PROD;
     return (
         <ApiContext.Provider value={apiurl}>
             {children}

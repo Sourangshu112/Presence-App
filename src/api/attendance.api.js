@@ -31,7 +31,7 @@ export const useAttendanceApi = () => {
             fetchApi(`/attendance/${classId}/my-report/`, {method: "GET"}),
 
         getLiveAttendanceSession: (classId) => 
-            fetchApi(`/attendance/${classId}/active-session`, {method: "GET"}),
+            fetchApi(`/attendance/${classId}/active-session/`, {method: "GET"}),
 
         verifyAndMarkAttendance: (formData) => 
             fetchApi("/attendance/verify/", {

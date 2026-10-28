@@ -15,7 +15,7 @@
       },
       "env": {
         "EXPO_PUBLIC_WEB_CLIENT_ID": "988110460623-0fbioogr5pp1t6an6u9d983jj1s5n368.apps.googleusercontent.com",
-        "EXPO_PUBLIC_APIURL": "http://65.0.177.178/presence"
+        "EXPO_PUBLIC_APIURL_PROD": "http://65.0.177.178/presence"
       }
     },
     "production": {

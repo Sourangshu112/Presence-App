@@ -12,14 +12,14 @@ export const useAuthApi = () => {
       }),
 
     addStudentData: (formData) => 
-      fetchApi('/auth/add_student_data', {
+      fetchApi('/auth/add_student_data/', {
         method: 'PUT',
         isFormData: true, // Tells the client not to force application/json
         body: formData
       }),
 
     addTeacherData: (formData) => 
-      fetchApi('/auth/add_teacher_data', {
+      fetchApi('/auth/add_teacher_data/', {
         method: 'PUT',
         isFormData: true,
         body: formData
